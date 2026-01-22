@@ -4,9 +4,11 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@elysiajs/eden": "^1.4.6",
     "@types/bun": "latest",
     "@types/pg": "^8.16.0",
-    "prisma": "^7.3.0"
+    "prisma": "^7.3.0",
+    "vitest": "^4.0.18"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -19,5 +21,15 @@
     "elysia": "^1.4.22",
     "pg": "^8.17.2",
     "zod": "^4.3.5"
+  }
+}
+{
+  "scripts": {
+    "dev": "elysia index.ts --watch",
+    "build": "tsc",
+    "start": "node index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "test": "vitest"
   }
 }
