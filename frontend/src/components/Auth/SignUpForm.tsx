@@ -121,7 +121,12 @@ export default function SignUpForm() {
               )}
             />
 
-            <Button type="submit">Sign Up</Button>
+            <Button
+              type="submit"
+              className="bg-violet-800 hover:bg-fuchsia-700"
+            >
+              Sign Up
+            </Button>
           </form>
         </Form>
       </CardContent>

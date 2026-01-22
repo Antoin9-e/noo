@@ -1,10 +1,12 @@
+import LeftPageDesign from "@/components/Auth/LeftPageDesign";
 import SignUpForm from "@/components/Auth/SignUpForm";
 import { Link } from "react-router-dom";
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center j bg-gray-100">
+      <LeftPageDesign />
+      <div className="w-[50%] max-w-md m-auto">
         <SignUpForm />
 
         {/* Lien vers la connexion */}

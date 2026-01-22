@@ -87,7 +87,12 @@ export default function SignInForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Sign In</Button>
+            <Button
+              type="submit"
+              className="bg-violet-800 hover:bg-fuchsia-700"
+            >
+              Sign In
+            </Button>
           </form>
         </Form>
       </CardContent>
