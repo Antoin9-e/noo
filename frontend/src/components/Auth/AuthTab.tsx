@@ -1,26 +1,51 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SignUpForm from "./SignUpForm";
-import SignInForm from "./SignInForm";
-import { useSession } from "@/lib/auth-client";
-import { href, Link } from "react-router";
+import { LogIn } from "lucide-react";
+import { FileUser } from "lucide-react";
+import { LogOut } from "lucide-react";
+
+import { useSession, signOut } from "@/lib/auth-client";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function AuthTab() {
   const { data: session } = useSession();
+  const navigate = useNavigate();
+
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await signOut();
+    navigate("/signin", { replace: true });
+  };
+
   if (session) {
-    return <div>You are already signed in.</div>;
+    return (
+      <div className=" flex space-x-4 mr-6">
+        <div>
+          <Link to="/dashboard">
+            {" "}
+            <FileUser className="inline mr-2 mb-1" size={16} />
+            {session.user?.name}
+          </Link>
+        </div>
+        <button onClick={handleSignOut} className="cursor-pointer">
+          <LogOut className="inline mr-2 mb-1" size={16} />
+          Logout
+        </button>
+      </div>
+    );
   }
   return (
-    <Tabs defaultValue="sign-in" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="sign-in">Sign In</TabsTrigger>
-        <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
-      </TabsList>
-      <TabsContent value="sign-in">
-        <Link to="/signin">Login</Link>
-      </TabsContent>
-      <TabsContent value="sign-up">
-        <Link to="/signup">Register</Link>
-      </TabsContent>
-    </Tabs>
+    <div className=" flex space-x-4 mr-6">
+      <div>
+        <Link to="/signin">
+          {" "}
+          <LogIn className="inline mr-2 mb-1" size={16} />
+          Login
+        </Link>
+      </div>
+
+      <Link to="/signup">
+        <FileUser className="inline mr-2 mb-1" size={16} />
+        Register
+      </Link>
+    </div>
   );
 }

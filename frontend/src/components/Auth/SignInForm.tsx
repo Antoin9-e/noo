@@ -38,7 +38,7 @@ export default function SignInForm() {
         email: data.email,
         password: data.password,
       });
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       // Handle sign-in error (e.g., show error message)
       console.error("Sign-in error:", error);
@@ -87,10 +87,7 @@ export default function SignInForm() {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="bg-violet-800 hover:bg-fuchsia-700"
-            >
+            <Button type="submit" className="bg-violet-800 hover:bg-violet-600">
               Sign In
             </Button>
           </form>

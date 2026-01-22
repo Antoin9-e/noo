@@ -3,6 +3,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import DashboardPage from "@/pages/DashboardPage";
+import ErrorPage from "@/pages/ErrorPage";
+import HomePage from "@/pages/HomePage";
 
 export default function AppRoutes() {
   return (
@@ -22,8 +24,8 @@ export default function AppRoutes() {
       />
 
       {/* Redirection par défaut */}
-      <Route path="/" element={<Navigate to="/signin" replace />} />
-      <Route path="*" element={<Navigate to="/signin" replace />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }
