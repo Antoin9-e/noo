@@ -1,6 +1,4 @@
-import { LogIn } from "lucide-react";
-import { FileUser } from "lucide-react";
-import { LogOut } from "lucide-react";
+import { LogIn, FileUser, LogOut, User } from "lucide-react";
 
 import { useSession, signOut } from "@/lib/auth-client";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,9 +17,9 @@ export default function AuthTab() {
     return (
       <div className=" flex space-x-4 mr-6">
         <div>
-          <Link to="/dashboard">
+          <Link to="/profile">
             {" "}
-            <FileUser className="inline mr-2 mb-1" size={16} />
+            <User className="inline mr-2 mb-1" size={16} />
             {session.user?.name}
           </Link>
         </div>

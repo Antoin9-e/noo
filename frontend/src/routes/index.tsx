@@ -5,6 +5,7 @@ import SignUpPage from "@/pages/SignUpPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ErrorPage from "@/pages/ErrorPage";
 import HomePage from "@/pages/HomePage";
+import ProfilePage from "@/pages/ProfilePage";
 
 export default function AppRoutes() {
   return (
@@ -12,6 +13,7 @@ export default function AppRoutes() {
       {/* Routes publiques */}
       <Route path="/signin" element={<SignInPage />} />
       <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
 
       {/* Routes protégées */}
       <Route
