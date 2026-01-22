@@ -11,12 +11,12 @@ export default function SignUpPage() {
 
         {/* Lien vers la connexion */}
         <p className="text-center text-sm text-gray-600 mt-4">
-          Déjà un compte ?{" "}
+          Already have an account ?{" "}
           <Link
             to="/signin"
             className="text-blue-600 hover:underline font-medium"
           >
-            Se connecter
+            Sign in
           </Link>
         </p>
       </div>

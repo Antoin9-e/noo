@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { signUp } from "@/lib/auth-client";
+import SocialProviders from "./SocialProviders";
 
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -127,6 +128,7 @@ export default function SignUpForm() {
           </form>
         </Form>
       </CardContent>
+      <SocialProviders />
     </Card>
   );
 }

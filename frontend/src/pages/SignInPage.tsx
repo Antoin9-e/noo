@@ -11,12 +11,12 @@ export default function SignInPage() {
 
         {/* Lien vers l'inscription */}
         <p className="text-center text-sm text-gray-600 mt-4">
-          Pas encore de compte ?{" "}
+          No account yet ?{" "}
           <Link
             to="/signup"
             className="text-blue-600 hover:underline font-medium"
           >
-            S'inscrire
+            Sign up
           </Link>
         </p>
       </div>
