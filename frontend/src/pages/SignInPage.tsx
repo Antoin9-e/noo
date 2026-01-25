@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen flex items-center bg-gray-100 w-full">
+    <div className="min-h-screen flex items-center  w-full">
       <LeftPageDesign />
       <div className="w-[50%] max-w-md m-auto">
         <SignInForm />

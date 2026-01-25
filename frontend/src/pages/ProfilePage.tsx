@@ -1,6 +1,7 @@
 import Header from "@/components/page/Header";
 import { useSession } from "@/lib/auth-client";
 import { Navigate } from "react-router-dom";
+import { User } from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -11,16 +12,31 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
-      <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4">Profile Page</h1>
-        <p className="text-gray-700">This is the profile page content.</p>
-        {session.user.image && (
-          <img
-            src={session.user.image}
-            alt="User Avatar"
-            className="w-32 h-32 rounded-full mt-4"
-          />
-        )}
+      <div className="max-w-[80%] mx-auto p-6">
+        <div className="flex w-full gap-6">
+          <div
+            id="content"
+            className="p-4 bg-white rounded-2xl min-h-screen w-[65%]"
+          ></div>
+          <div
+            id="profile-info"
+            className="bg-white rounded-2xl w-[30%]  flex flex-col items-center py-10"
+          >
+            <h2 className="text-2xl font-semibold ">My profile</h2>
+            {(session.user.image && (
+              <img
+                src={session.user.image}
+                alt="User Avatar"
+                className="w-48 h-48 rounded-full mt-4 border-4 border-violet-700"
+              />
+            )) || (
+              <div className="w-48 h-48 rounded-full mt-4 border-4 border-violet-700 bg-gray-100 flex items-center justify-center">
+                <User className="w-32 h-32 text-violet-700" />
+              </div>
+            )}
+            <p className="text-gray-700 mt-5">{session.user.name}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
