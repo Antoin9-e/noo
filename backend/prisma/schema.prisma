@@ -10,10 +10,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+ // url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(uuid())
   name          String
   email         String
   emailVerified Boolean   @default(false)
@@ -23,12 +24,57 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  //relations
+  responsibleFor IsResponsible[]
+  memberships   IsMember[] 
+
   @@unique([email])
   @@map("user")
 }
 
+model Family {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //relations
+  responsibles IsResponsible[]
+  members      IsMember[]
+}
+
+model IsMember {
+ 
+  userId    String
+  familyId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, familyId])
+  
+}
+
+model IsResponsible {
+ 
+  userId    String
+  familyId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, familyId])
+  @@unique([familyId])
+  
+  
+}
+
 model Session {
-  id        String   @id
+  id        String   @id @default(uuid())
   expiresAt DateTime
   token     String
   createdAt DateTime @default(now())
@@ -44,7 +90,7 @@ model Session {
 }
 
 model Account {
-  id                    String    @id
+  id                    String    @id @default(uuid())
   accountId             String
   providerId            String
   userId                String
@@ -64,7 +110,7 @@ model Account {
 }
 
 model Verification {
-  id         String   @id
+  id         String   @id @default(uuid())
   identifier String
   value      String
   expiresAt  DateTime
