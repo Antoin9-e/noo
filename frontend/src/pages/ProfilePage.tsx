@@ -17,7 +17,19 @@ export default function ProfilePage() {
           <div
             id="content"
             className="p-4 bg-white rounded-2xl min-h-screen w-[65%]"
-          ></div>
+          >
+            <form
+              action="http://localhost:3000/api/upload/avatar"
+              method="POST"
+              encType="multipart/form-data"
+              className="flex flex-col gap-4"
+            >
+              <h2 className="text-2xl font-semibold mb-4">Upload Avatar</h2>
+              <input type="file" name="image" />
+              <input type="text" name="userId" value={session.user.id} hidden />
+              <button type="submit">Upload</button>
+            </form>
+          </div>
           <div
             id="profile-info"
             className="bg-white rounded-2xl w-[30%]  flex flex-col items-center py-10"

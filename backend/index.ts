@@ -3,6 +3,7 @@ import { auth } from "./src/lib/auth.js";
 import { cors } from "@elysiajs/cors";
 import { userRoutes } from "./src/routes/user.js";
 import { familyRoutes } from "./src/routes/family.js";
+import { uploadRoutes } from "./src/routes/upload_avatar.js";
 
 const app = new Elysia()
   .use(
@@ -13,6 +14,7 @@ const app = new Elysia()
   )
   .use(userRoutes)
   .use(familyRoutes)
+  .use(uploadRoutes)
   .all("/api/auth/*", ({ request }) => auth.handler(request))
   .get("/", () => "Backend is running!")
   .listen(3000);
