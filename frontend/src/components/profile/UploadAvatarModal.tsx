@@ -23,10 +23,25 @@ export function AvatarPopover({
 }) {
   const [image, setImage] = React.useState<string>(imageUrl);
   const { refetch } = useSession();
+  const type = ["image/png", "image/jpeg", "image/webp"];
 
   const handleClick = async () => {
     const fileInput = document.getElementById("file") as HTMLInputElement;
     if (fileInput && fileInput.files && fileInput.files.length > 0) {
+      if (!type.includes(fileInput.files[0].type)) {
+        toast.error(
+          "Invalid file type. Please select a PNG, JPEG, or WEBP image.",
+          {
+            className: "toast-error text-red-600",
+          },
+        );
+        return;
+      }
+
+      if (fileInput.files[0].size > 5 * 1024 * 1024) {
+        toast.error("File size exceeds 5MB. Please select a smaller image.");
+        return;
+      }
       const formData = new FormData();
       formData.append("image", fileInput.files[0]);
       formData.append("userId", userId);
@@ -62,10 +77,10 @@ export function AvatarPopover({
             <img
               src={image}
               alt="User Avatar"
-              className="w-40 h-40 rounded-2xl mt-4 border-4 border-violet-700 object-cover"
+              className="w-48 h-48 rounded-2xl mt-4 object-cover shadow-lg shadow-violet-300"
             />
           )) || (
-            <div className="w-40 h-40 rounded-2xl mt-4 border-4 border-violet-700 bg-gray-100 flex items-center justify-center">
+            <div className="w-48 h-48 rounded-2xl mt-4 border-4 border-violet-700 bg-gray-100 flex items-center justify-center">
               <User className="w-24 h-24 text-violet-700" />
             </div>
           )}
@@ -88,7 +103,7 @@ export function AvatarPopover({
             <FieldLabel htmlFor="file" className="w-1/2">
               File:
             </FieldLabel>
-            <Input id="file" type="file" />
+            <Input id="file" type="file" placeholder="choose a file" />
           </Field>
           <Field orientation="horizontal">
             <button
