@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma.js";
 
 export const familyRoutes = new Elysia({ prefix: "/api" })
@@ -21,4 +21,31 @@ export const familyRoutes = new Elysia({ prefix: "/api" })
       },
     });
     return { family };
-  });
+  })
+  .post(
+    "/families/create",
+    async ({ body }) => {
+      const newFamily = await prisma.family.create({
+        data: {
+          name: body.name,
+          responsibles: {
+            create: {
+              userId: body.userId,
+            },
+          },
+          members: {
+            create: {
+              userId: body.userId,
+            },
+          },
+        },
+      });
+      return { family: newFamily };
+    },
+    {
+      body: t.Object({
+        name: t.String(),
+        userId: t.String(),
+      }),
+    },
+  );
