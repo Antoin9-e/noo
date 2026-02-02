@@ -1,7 +1,7 @@
 import { LogIn, FileUser, LogOut, User } from "lucide-react";
-
 import { useSession, signOut } from "@/lib/auth-client";
 import { Link, useNavigate } from "react-router-dom";
+import { DropdownFamilies } from "../families/DropdownFamilies";
 
 export default function AuthTab() {
   const { data: session } = useSession();
@@ -15,7 +15,10 @@ export default function AuthTab() {
 
   if (session) {
     return (
-      <div className=" flex space-x-4 mr-6">
+      <div className=" flex space-x-4 mr-6 items-center">
+        <div>
+          <DropdownFamilies />
+        </div>
         <div>
           <Link to="/profile">
             {" "}
