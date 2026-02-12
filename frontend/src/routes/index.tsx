@@ -7,6 +7,7 @@ import ErrorPage from "@/pages/ErrorPage";
 import HomePage from "@/pages/HomePage";
 import ProfilePage from "@/pages/ProfilePage";
 import FamilyDashboard from "@/pages/FamilyDashboard";
+import CreateFamilyPage from "@/pages/CreateFamilyPage";
 
 export default function AppRoutes() {
   return (
@@ -16,6 +17,7 @@ export default function AppRoutes() {
       <Route path="/signup" element={<SignUpPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/families/:familyId" element={<FamilyDashboard />} />
+      <Route path="/families/create" element={<CreateFamilyPage />} />
 
       {/* Routes protégées */}
       <Route

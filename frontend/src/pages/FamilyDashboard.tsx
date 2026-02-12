@@ -32,6 +32,10 @@ export default function FamilyDashboard() {
 
   React.useEffect(() => {
     const fetchFamily = async () => {
+      // Clear les données avant le fetch
+      setFamily(null);
+      setUsers([]);
+
       const response = await fetch(
         `http://localhost:3000/api/families/${familyId}`,
       );
@@ -46,7 +50,6 @@ export default function FamilyDashboard() {
   if (!session) {
     return <Navigate to="/signin" replace />;
   }
-
   return (
     <div>
       <Header />

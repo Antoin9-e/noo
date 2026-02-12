@@ -2,10 +2,28 @@ import { LogIn, FileUser, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Link, useNavigate } from "react-router-dom";
 import { DropdownFamilies } from "../families/DropdownFamilies";
+import type { UserWithRelations } from "@/types";
+import React from "react";
 
 export default function AuthTab() {
   const { data: session } = useSession();
   const navigate = useNavigate();
+  const [familyData, setFamilyData] = React.useState<UserWithRelations | null>(
+    null,
+  );
+
+  React.useEffect(() => {
+    const fetchFamilyData = async () => {
+      if (session) {
+        const response = await fetch(
+          `http://localhost:3000/api/users/${session.user.id}`,
+        );
+        const data = await response.json();
+        setFamilyData(data.user);
+      }
+    };
+    fetchFamilyData();
+  }, [session]);
 
   const handleSignOut = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -17,7 +35,7 @@ export default function AuthTab() {
     return (
       <div className=" flex space-x-4 mr-6 items-center">
         <div>
-          <DropdownFamilies />
+          <DropdownFamilies data={familyData} />
         </div>
         <div>
           <Link to="/profile">
