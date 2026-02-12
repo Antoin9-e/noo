@@ -75,3 +75,10 @@ export interface FamilyResponse {
 export interface AllFamiliesResponse {
   families: FamilyWithMembers[];
 }
+
+//type pour creer une famille
+
+export interface newFam {
+  name: string;
+  userId: string;
+}

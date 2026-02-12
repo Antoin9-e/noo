@@ -15,6 +15,8 @@ import type { UserWithRelations } from "@/types";
 import { Link } from "react-router-dom";
 
 export function DropdownFamilies({ data }: { data: UserWithRelations | null }) {
+  const memberships = data?.memberships ?? [];
+  console.log("Données reçues par le Dropdown:", data);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,14 +27,20 @@ export function DropdownFamilies({ data }: { data: UserWithRelations | null }) {
       <DropdownMenuContent>
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Families</DropdownMenuLabel>
-          {data?.memberships.map((family) => (
-            <Link to={`/families/${family.family.id}`} key={family.family.id}>
-              <DropdownMenuItem key={family.family.id}>
-                <FaHouseChimneyUser className="inline mr-2" size={16} />
-                {family.family.name}
-              </DropdownMenuItem>
-            </Link>
-          ))}
+          {memberships.length > 0 ? (
+            memberships.map((m) => (
+              <Link to={`/families/${m.family.id}`} key={m.family.id}>
+                <DropdownMenuItem className="cursor-pointer">
+                  <FaHouseChimneyUser className="inline mr-2" size={16} />
+                  {m.family.name}
+                </DropdownMenuItem>
+              </Link>
+            ))
+          ) : (
+            <div className="px-2 py-1 text-xs text-gray-500">
+              No families found
+            </div>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Create Family</DropdownMenuLabel>
