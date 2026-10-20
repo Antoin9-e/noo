@@ -15,7 +15,7 @@ cleanupOutdatedCaches();
 // SPA : toutes les navigations servent index.html (sauf l'API)
 registerRoute(
   new NavigationRoute(createHandlerBoundToURL("/index.html"), {
-    denylist: [/^\/api\//, /^\/ws/],
+    denylist: [/^\/api\//],
   }),
 );
 

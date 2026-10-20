@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { resizeImage } from "@/lib/resize-image";
 import { useHouseholdStore } from "@/stores/household";
 import type { Family, Me, PersonColor } from "@/types";
 
@@ -40,9 +41,9 @@ export function useHousehold() {
 export function useUploadAvatar() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => {
+    mutationFn: async (file: File) => {
       const form = new FormData();
-      form.append("image", file);
+      form.append("image", await resizeImage(file));
       return api<{ url: string }>("/me/avatar", { method: "POST", body: form });
     },
     onSuccess: () => {

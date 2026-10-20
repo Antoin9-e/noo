@@ -2,7 +2,6 @@ import { Elysia, t } from "elysia";
 import { authGuard } from "../../plugins/auth-guard.js";
 import { requireMembership } from "../../plugins/family-guard.js";
 import { prisma } from "../../lib/prisma.js";
-import { publish } from "../realtime/publish.js";
 
 const EMOJIS = ["❤️", "😂", "🔥", "👍", "😍", "🥹", "🤤", "🎉"];
 
@@ -39,7 +38,6 @@ export const activityRoutes = new Elysia({ prefix: "/api/families/:familyId/acti
         create: { activityId: activity.id, userId: user.id, emoji: body.emoji },
         update: { emoji: body.emoji },
       });
-      publish(params.familyId, ["activity"]);
       return { ok: true };
     },
     { auth: true, body: t.Object({ emoji: t.Union(EMOJIS.map((e) => t.Literal(e))) }) },
@@ -51,7 +49,6 @@ export const activityRoutes = new Elysia({ prefix: "/api/families/:familyId/acti
       await prisma.activityReaction.deleteMany({
         where: { activityId: params.activityId, userId: user.id, activity: { familyId: params.familyId } },
       });
-      publish(params.familyId, ["activity"]);
       return { ok: true };
     },
     { auth: true },

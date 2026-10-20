@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { waitUntil } from "@vercel/functions";
 import { prisma } from "../../lib/prisma.js";
 import { env } from "../../lib/env.js";
 
@@ -54,9 +55,10 @@ export async function notify(
   );
 }
 
-// Fire-and-forget : une notification ne doit jamais faire échouer une requête
+// Fire-and-forget : une notification ne doit jamais faire échouer une requête.
+// waitUntil garde la fonction Vercel en vie jusqu'à l'envoi (sans effet ailleurs).
 export function notifyLater(...args: Parameters<typeof notify>) {
-  notify(...args).catch((e) => console.error("push", e));
+  waitUntil(notify(...args).catch((e) => console.error("push", e)));
 }
 
 export async function otherMembers(familyId: string, userId: string) {

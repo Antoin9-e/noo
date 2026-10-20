@@ -2,13 +2,9 @@ import { Elysia, t } from "elysia";
 import { authGuard } from "../../plugins/auth-guard.js";
 import { prisma } from "../../lib/prisma.js";
 import { uploadImage } from "../../lib/cloudinary.js";
-import { publish } from "../realtime/publish.js";
+import { fileTypeFromBlob } from "file-type";
 
-// Nom et photo apparaissent chez l'autre : on prévient tous mes foyers
-async function notifyFamilies(userId: string) {
-  const memberships = await prisma.membership.findMany({ where: { userId }, select: { familyId: true } });
-  for (const { familyId } of memberships) publish(familyId, ["family"]);
-}
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 const meSelect = {
   id: true,
@@ -34,38 +30,39 @@ export const meRoutes = new Elysia({ prefix: "/api/me" })
   )
   .patch(
     "/",
-    async ({ user, body }) => {
-      const me = await prisma.user.update({
+    ({ user, body }) =>
+      prisma.user.update({
         where: { id: user.id },
         data: { name: body.name.trim() },
         select: meSelect,
-      });
-      await notifyFamilies(user.id);
-      return me;
-    },
+      }),
     { auth: true, body: t.Object({ name: t.String({ minLength: 1, maxLength: 60 }) }) },
   )
   .post(
     "/avatar",
     async ({ user, body, status }) => {
+      // Vérifie le vrai contenu du fichier, pas le type annoncé par le navigateur.
+      // (Le `type` de t.File dépend d'un import dynamique de file-type, absent du bundle Vercel.)
+      const detected = await fileTypeFromBlob(body.image);
+      if (!detected || !IMAGE_TYPES.includes(detected.mime)) {
+        return status(422, { error: "Choisis une image JPEG, PNG ou WebP." });
+      }
       try {
         const buffer = Buffer.from(await body.image.arrayBuffer());
         // L'identité vient de la session, jamais du body
         const { secure_url } = await uploadImage(buffer, user.id);
         await prisma.user.update({ where: { id: user.id }, data: { image: secure_url } });
-        await notifyFamilies(user.id);
         return { url: secure_url };
-      } catch {
+      } catch (e) {
+        console.error("upload avatar", e);
         return status(500, { error: "Échec de l'upload" });
       }
     },
     {
       auth: true,
       body: t.Object({
-        image: t.File({
-          type: ["image/png", "image/jpeg", "image/webp"],
-          maxSize: 5 * 1024 * 1024,
-        }),
+        // Vercel refuse les corps de plus de 4,5 Mo : le front redimensionne avant l'envoi
+        image: t.File({ maxSize: 4 * 1024 * 1024 }),
       }),
     },
   );

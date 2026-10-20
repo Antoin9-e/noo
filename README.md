@@ -9,9 +9,9 @@ PWA mobile (iPhone + Android), un seul service : Bun + Elysia + Prisma + Postgre
 docker compose up -d                       # Postgres
 cd backend && cp .env.example .env         # remplir BETTER_AUTH_SECRET (openssl rand -base64 32)
 bun install && bun run db:migrate && bun run db:seed
-bun run dev                                # API + WebSocket sur :3000
+bun run dev                                # API sur :3000
 
-cd ../frontend && bun install && bun run dev   # http://localhost:5173 (proxy /api et /ws → :3000)
+cd ../frontend && bun install && bun run dev   # http://localhost:5173 (proxy /api → :3000)
 ```
 
 Comptes de démo : `toi@noo.dev` et `elle@noo.dev`, mot de passe `password123`.
@@ -31,5 +31,5 @@ Optionnel :
 
 ## Déploiement
 
-Voir [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md) (Railway + Neon, Dockerfile à la racine).
+Voir [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md) (Vercel + Neon).
 Le plan produit et technique est dans [PLAN_MVP.md](PLAN_MVP.md).

@@ -7,7 +7,7 @@ export function serveFrontend(distDir: string) {
   const index = join(root, "index.html");
 
   return new Elysia({ name: "static" }).get("/*", async ({ path, set }) => {
-    if (path.startsWith("/api/") || path === "/ws") {
+    if (path.startsWith("/api/")) {
       set.status = 404;
       return { error: "Introuvable" };
     }

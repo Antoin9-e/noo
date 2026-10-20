@@ -3,7 +3,6 @@ import { randomBytes } from "node:crypto";
 import { authGuard } from "../../plugins/auth-guard.js";
 import { requireMembership } from "../../plugins/family-guard.js";
 import { prisma } from "../../lib/prisma.js";
-import { publish } from "../realtime/publish.js";
 
 export const memberSelect = {
   role: true,
@@ -58,7 +57,6 @@ export const familyRoutes = new Elysia({ prefix: "/api" })
         data: { name: body.name.trim() },
         select: familySelect,
       });
-      publish(params.familyId, ["family"]);
       return family;
     },
     { auth: true, body: t.Object({ name: t.String({ minLength: 1, maxLength: 40 }) }) },
@@ -85,7 +83,6 @@ export const familyRoutes = new Elysia({ prefix: "/api" })
           });
           if (other) await tx.membership.create({ data: { ...other, color: mine.color } });
         });
-        publish(params.familyId, ["family"]);
       }
       return prisma.family.findUniqueOrThrow({ where: { id: params.familyId }, select: familySelect });
     },
@@ -156,7 +153,6 @@ export const familyRoutes = new Elysia({ prefix: "/api" })
           data: { usedById: user.id, usedAt: new Date() },
         }),
       ]);
-      publish(family.id, ["family"]);
       return { familyId: family.id, alreadyMember: false };
     },
     { auth: true },

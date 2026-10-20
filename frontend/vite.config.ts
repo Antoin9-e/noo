@@ -55,7 +55,6 @@ export default defineConfig({
           proxy.on("proxyReq", (req) => req.setHeader("origin", API));
         },
       },
-      "/ws": { target: API.replace(/^http/, "ws"), ws: true },
     },
   },
 });

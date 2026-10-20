@@ -47,7 +47,6 @@ export default function MePage() {
   const onFile = async (file: File | undefined) => {
     if (!file) return;
     if (!ACCEPTED.includes(file.type)) return toast.error("Choisis une image JPEG, PNG ou WebP.");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Image trop lourde (5 Mo max).");
     toast.promise(upload.mutateAsync(file), {
       loading: "Envoi de la photo…",
       success: "Photo mise à jour ✨",

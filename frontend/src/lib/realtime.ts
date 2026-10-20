@@ -1,61 +1,39 @@
 import { useEffect } from "react";
-import { useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
-type Message = { type: "ready" } | { type: "invalidate"; keys: QueryKey[] };
+// Pas de WebSocket sur Vercel : on refetch les données partagées régulièrement
+// tant que l'app est visible, et tout de suite au retour au premier plan.
+const SHARED = new Set(["events", "wishes", "activity", "family"]);
+const INTERVAL = 15_000;
 
-// Le serveur dit « ça a changé », on refetch. Reconnexion avec backoff.
 export function useRealtime(enabled: boolean) {
   const qc = useQueryClient();
 
   useEffect(() => {
     if (!enabled) return;
-    let ws: WebSocket | null = null;
-    let attempt = 0;
+    const refresh = () =>
+      qc.invalidateQueries({ predicate: (q) => SHARED.has(String(q.queryKey[0])) });
+
     let timer: number | undefined;
-    let ping: number | undefined;
-    let stopped = false;
-
-    const connect = () => {
-      const proto = location.protocol === "https:" ? "wss:" : "ws:";
-      ws = new WebSocket(`${proto}//${location.host}/ws`);
-      ws.onmessage = (e) => {
-        if (e.data === "pong") return;
-        const msg = JSON.parse(e.data) as Message;
-        if (msg.type === "ready") {
-          // Reconnexion : on a pu rater des changements
-          if (attempt > 0) qc.invalidateQueries();
-          attempt = 0;
-        } else if (msg.type === "invalidate") {
-          msg.keys.forEach((queryKey) => qc.invalidateQueries({ queryKey }));
-        }
-      };
-      ws.onopen = () => {
-        ping = window.setInterval(() => ws?.readyState === WebSocket.OPEN && ws.send("ping"), 25_000);
-      };
-      ws.onclose = (e) => {
-        window.clearInterval(ping);
-        if (stopped || e.code === 4401) return;
-        attempt++;
-        timer = window.setTimeout(connect, Math.min(30_000, 1000 * 2 ** Math.min(attempt, 5)));
-      };
+    const start = () => {
+      window.clearInterval(timer);
+      timer = window.setInterval(refresh, INTERVAL);
     };
-
-    // Au retour au premier plan (téléphone déverrouillé), on se reconnecte tout de suite
+    // Téléphone verrouillé ou app en arrière-plan : on arrête de poller
     const onVisible = () => {
-      if (document.visibilityState === "visible" && ws?.readyState === WebSocket.CLOSED) {
-        window.clearTimeout(timer);
-        connect();
+      if (document.visibilityState === "visible") {
+        refresh();
+        start();
+      } else {
+        window.clearInterval(timer);
       }
     };
 
-    connect();
+    if (document.visibilityState === "visible") start();
     document.addEventListener("visibilitychange", onVisible);
     return () => {
-      stopped = true;
-      window.clearTimeout(timer);
-      window.clearInterval(ping);
+      window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
-      ws?.close();
     };
   }, [enabled, qc]);
 }
