@@ -2,11 +2,12 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Avatar } from "@/components/common/Avatar";
-import { useMe } from "@/features/me/hooks";
+import { useHousehold } from "@/features/household/hooks";
+import { toneOf } from "@/lib/person-color";
 import { firstName, fmt, greeting } from "@/lib/dates";
 
 export default function TodayPage() {
-  const { data: me } = useMe();
+  const { me, mine } = useHousehold();
 
   return (
     <>
@@ -16,7 +17,7 @@ export default function TodayPage() {
         right={
           me && (
             <Link to="/moi" aria-label="Mon profil" className="pressable">
-              <Avatar name={me.name} image={me.image} tone="violet" />
+              <Avatar name={me.name} image={me.image} tone={toneOf(mine?.color)} />
             </Link>
           )
         }

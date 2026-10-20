@@ -48,6 +48,7 @@ model Family {
   updatedAt DateTime @updatedAt
 
   memberships Membership[]
+  invitations Invitation[]
 }
 
 model Membership {
@@ -62,6 +63,21 @@ model Membership {
 
   @@id([userId, familyId])
   @@unique([familyId, color])
+}
+
+model Invitation {
+  id          String    @id @default(uuid())
+  familyId    String
+  token       String    @unique
+  createdById String
+  expiresAt   DateTime
+  usedById    String?
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
 }
 
 model Session {

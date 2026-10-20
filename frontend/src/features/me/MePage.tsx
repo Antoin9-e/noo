@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Camera, Download, LogOut, Moon, Sun, SunMoon } from "lucide-react";
@@ -12,8 +12,9 @@ import { cn } from "@/lib/utils";
 import { usePreferences, type ThemePreference } from "@/stores/preferences";
 import { useInstall } from "@/features/install/useInstall";
 import { IosInstallSheet } from "@/features/install/IosInstallSheet";
-import { useState } from "react";
-import { useMe, useUploadAvatar } from "./hooks";
+import { useHousehold, useUploadAvatar } from "@/features/household/hooks";
+import { HouseholdSection } from "@/features/household/HouseholdSection";
+import { toneOf } from "@/lib/person-color";
 
 const THEMES: Array<{ value: ThemePreference; label: string; icon: typeof Sun }> = [
   { value: "auto", label: "Auto", icon: SunMoon },
@@ -33,7 +34,7 @@ export function Section({ title, children }: { title: string; children: React.Re
 }
 
 export default function MePage() {
-  const { data: me } = useMe();
+  const { me, mine } = useHousehold();
   const upload = useUploadAvatar();
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ export default function MePage() {
                 className="pressable relative"
                 aria-label="Changer ma photo"
               >
-                <Avatar name={me.name} image={me.image} tone="violet" size="lg" />
+                <Avatar name={me.name} image={me.image} tone={toneOf(mine?.color)} size="lg" />
                 <span className="absolute right-0 bottom-0 grid size-8 place-items-center rounded-full bg-ink text-bg ring-4 ring-surface">
                   <Camera className="size-4" />
                 </span>
@@ -94,6 +95,10 @@ export default function MePage() {
             </>
           )}
         </div>
+
+        <Section title="Notre foyer">
+          <HouseholdSection />
+        </Section>
 
         <Section title="Apparence">
           <div className="grid grid-cols-3 gap-2 rounded-2xl bg-surface-2 p-1">
