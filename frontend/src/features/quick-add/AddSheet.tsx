@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDown, Link2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet } from "@/components/common/Sheet";
@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/common/Skeleton";
 import { Avatar } from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useUi, type AddKind } from "@/stores/ui";
+import { useUi, type AddDraft, type AddKind } from "@/stores/ui";
 import { usePreferences } from "@/stores/preferences";
 import { useHousehold } from "@/features/household/hooks";
 import { CATEGORIES, categoryByKey } from "@/features/wishes/categories";
@@ -45,15 +45,18 @@ export function AddSheet() {
   const [forUserId, setForUserId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!draft) return;
-    setKind(draft.kind);
-    setTitle(draft.title ?? "");
-    setMore(false);
-    setUrl("");
-    setNote("");
-    setForUserId(partner?.user.id ?? null);
-  }, [draft, partner?.user.id]);
+  const [shownDraft, setShownDraft] = useState<AddDraft | null>(null);
+  if (draft !== shownDraft) {
+    setShownDraft(draft);
+    if (draft) {
+      setKind(draft.kind);
+      setTitle(draft.title ?? "");
+      setMore(false);
+      setUrl("");
+      setNote("");
+      setForUserId(partner?.user.id ?? null);
+    }
+  }
 
   const isMovie = kind === "MOVIE" || kind === "SERIES";
   const query = useDebounced(title, 300);

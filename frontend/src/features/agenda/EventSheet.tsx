@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronDown, MapPin, Trash2 } from "lucide-react";
 import { Sheet } from "@/components/common/Sheet";
 import { Switch } from "@/components/common/Switch";
@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUi, type EventDraft } from "@/stores/ui";
 import { useHousehold } from "@/features/household/hooks";
-import { ForWhomPicker, forWhomOf, participantsFor, type ForWhom } from "@/features/household/ForWhomPicker";
+import { ForWhomPicker } from "@/features/household/ForWhomPicker";
+import { forWhomOf, participantsFor, type ForWhom } from "@/features/household/forWhom";
 import { fromInputs, toDateInput, toTimeInput } from "@/lib/dates";
 import { tap } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
@@ -56,14 +57,17 @@ export function EventSheet() {
   const remove = useDeleteEvent();
   const [form, setForm] = useState<FormState | null>(null);
   const [more, setMore] = useState(false);
+  const [shownDraft, setShownDraft] = useState<EventDraft | null>(null);
   const editing = !!draft?.id;
 
-  useEffect(() => {
-    if (draft && me) {
+  // Nouveau brouillon → on repart d'un formulaire propre (sans effet, pas de rendu en cascade)
+  if (draft !== shownDraft && me) {
+    setShownDraft(draft);
+    if (draft) {
       setForm(initialState(draft, me.id, partner?.user.id));
       setMore(!!(draft.location || draft.note || draft.isCountdown));
     }
-  }, [draft, me, partner?.user.id]);
+  }
 
   if (!me) return null;
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>

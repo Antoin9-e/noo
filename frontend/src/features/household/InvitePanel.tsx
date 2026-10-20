@@ -4,7 +4,7 @@ import { copyText, shareLink } from "@/lib/share";
 import { useCreateInvitation } from "./hooks";
 import { toast } from "sonner";
 
-export function invitationUrl(token: string) {
+function invitationUrl(token: string) {
   return `${window.location.origin}/join/${token}`;
 }
 

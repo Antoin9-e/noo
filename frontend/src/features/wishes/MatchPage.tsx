@@ -15,7 +15,7 @@ import { CATEGORIES, categoryByKey } from "./categories";
 import { useWishes } from "./hooks";
 import { toSwipe } from "./selectors";
 import { WishImage } from "./WishImage";
-import { useVoteWithCelebration } from "./WishSheet";
+import { useVoteWithCelebration } from "./useVoteWithCelebration";
 
 const THRESHOLD = 100;
 
@@ -23,6 +23,7 @@ function SwipeCard({ wish, onVote }: { wish: Wish; onVote: (v: Vote) => void }) 
   const { members } = useHousehold();
   const [dx, setDx] = useState(0);
   const [fly, setFly] = useState<Vote | null>(null);
+  const [dragging, setDragging] = useState(false);
   const start = useRef<number | null>(null);
   const author = members.find((m) => m.user.id === wish.createdById);
   const meta = categoryByKey[wish.category];
@@ -41,21 +42,24 @@ function SwipeCard({ wish, onVote }: { wish: Wish; onVote: (v: Vote) => void }) 
       className="absolute inset-0 touch-none select-none"
       style={{
         transform: `translateX(${x}px) rotate(${x / 18}deg)`,
-        transition: start.current === null ? "transform 260ms cubic-bezier(0.22,1,0.36,1)" : "none",
+        transition: dragging ? "none" : "transform 260ms cubic-bezier(0.22,1,0.36,1)",
       }}
       onPointerDown={(e) => {
         start.current = e.clientX;
+        setDragging(true);
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
       }}
       onPointerMove={(e) => start.current !== null && setDx(e.clientX - start.current)}
       onPointerUp={() => {
         start.current = null;
+        setDragging(false);
         if (dx > THRESHOLD) release("YES");
         else if (dx < -THRESHOLD) release("NO");
         else setDx(0);
       }}
       onPointerCancel={() => {
         start.current = null;
+        setDragging(false);
         setDx(0);
       }}
     >

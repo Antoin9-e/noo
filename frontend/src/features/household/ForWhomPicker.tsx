@@ -5,7 +5,7 @@ import { firstName } from "@/lib/dates";
 import { toneOf } from "@/lib/person-color";
 import { useHousehold } from "./hooks";
 
-export type ForWhom = "me" | "partner" | "both";
+import type { ForWhom } from "./forWhom";
 
 const RING = { violet: "ring-violet", orange: "ring-orange", both: "ring-violet", none: "ring-ink" };
 
@@ -70,18 +70,4 @@ export function ForWhomPicker({ value, onChange }: { value: ForWhom; onChange: (
       })}
     </div>
   );
-}
-
-export function participantsFor(forWhom: ForWhom, meId: string, partnerId?: string) {
-  if (forWhom === "me" || !partnerId) return [meId];
-  if (forWhom === "partner") return [partnerId];
-  return [meId, partnerId];
-}
-
-export function forWhomOf(participantIds: string[], meId: string, partnerId?: string): ForWhom {
-  if (!partnerId) return "me";
-  const hasMe = participantIds.includes(meId);
-  const hasPartner = participantIds.includes(partnerId);
-  if (hasMe && hasPartner) return "both";
-  return hasPartner ? "partner" : "me";
 }

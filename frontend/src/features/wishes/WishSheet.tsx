@@ -8,10 +8,10 @@ import { firstName, fmt } from "@/lib/dates";
 import { toneOf } from "@/lib/person-color";
 import { tap } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
-import type { Vote, Wish } from "@/types";
 import { categoryByKey } from "./categories";
 import { WishImage } from "./WishImage";
-import { useDeleteWish, useRate, useUpdateWish, useVote, useWishes } from "./hooks";
+import { useDeleteWish, useRate, useUpdateWish, useWishes } from "./hooks";
+import { useVoteWithCelebration } from "./useVoteWithCelebration";
 
 function Stars({ value, onChange, readOnly }: { value: number | null; onChange?: (v: number) => void; readOnly?: boolean }) {
   return (
@@ -33,18 +33,6 @@ function Stars({ value, onChange, readOnly }: { value: number | null; onChange?:
       ))}
     </span>
   );
-}
-
-export function useVoteWithCelebration() {
-  const vote = useVote();
-  const celebrate = useUi((s) => s.celebrate);
-  return (wish: Wish, v: Vote) => {
-    tap(v === "YES" ? 12 : 6);
-    vote.mutate(
-      { id: wish.id, vote: v },
-      { onSuccess: (res) => res.justMatched && celebrate(res) },
-    );
-  };
 }
 
 export function WishSheet() {
