@@ -40,20 +40,20 @@ export const familyRoutes = new Elysia({ prefix: "/api" })
     },
   )
   .get(
-    "/families/:id",
+    "/families/:familyId",
     async ({ user, params }) => {
-      await requireMembership(user.id, params.id);
-      return prisma.family.findUniqueOrThrow({ where: { id: params.id }, select: familySelect });
+      await requireMembership(user.id, params.familyId);
+      return prisma.family.findUniqueOrThrow({ where: { id: params.familyId }, select: familySelect });
     },
     { auth: true },
   )
   .patch(
-    "/families/:id",
+    "/families/:familyId",
     async ({ user, params, body, status }) => {
-      const membership = await requireMembership(user.id, params.id);
+      const membership = await requireMembership(user.id, params.familyId);
       if (membership.role !== "ADMIN") return status(403, { error: "Réservé à l'admin du foyer" });
       return prisma.family.update({
-        where: { id: params.id },
+        where: { id: params.familyId },
         data: { name: body.name.trim() },
         select: familySelect,
       });
@@ -61,45 +61,45 @@ export const familyRoutes = new Elysia({ prefix: "/api" })
     { auth: true, body: t.Object({ name: t.String({ minLength: 1, maxLength: 40 }) }) },
   )
   .patch(
-    "/families/:id/me",
+    "/families/:familyId/me",
     async ({ user, params, body }) => {
-      const mine = await requireMembership(user.id, params.id);
+      const mine = await requireMembership(user.id, params.familyId);
       if (mine.color !== body.color) {
         // Couleur prise par l'autre : on échange. L'unicité (familyId, color) interdit
         // un simple double update, donc on retire puis recrée la ligne de l'autre.
         await prisma.$transaction(async (tx) => {
           const other = await tx.membership.findUnique({
-            where: { familyId_color: { familyId: params.id, color: body.color } },
+            where: { familyId_color: { familyId: params.familyId, color: body.color } },
           });
           if (other) {
             await tx.membership.delete({
-              where: { userId_familyId: { userId: other.userId, familyId: params.id } },
+              where: { userId_familyId: { userId: other.userId, familyId: params.familyId } },
             });
           }
           await tx.membership.update({
-            where: { userId_familyId: { userId: user.id, familyId: params.id } },
+            where: { userId_familyId: { userId: user.id, familyId: params.familyId } },
             data: { color: body.color },
           });
           if (other) await tx.membership.create({ data: { ...other, color: mine.color } });
         });
       }
-      return prisma.family.findUniqueOrThrow({ where: { id: params.id }, select: familySelect });
+      return prisma.family.findUniqueOrThrow({ where: { id: params.familyId }, select: familySelect });
     },
     { auth: true, body: t.Object({ color: colorSchema }) },
   )
   .post(
-    "/families/:id/invitations",
+    "/families/:familyId/invitations",
     async ({ user, params }) => {
-      await requireMembership(user.id, params.id);
+      await requireMembership(user.id, params.familyId);
       const now = new Date();
       // Un seul lien valide à la fois : les précédents expirent
       await prisma.invitation.updateMany({
-        where: { familyId: params.id, usedAt: null, expiresAt: { gt: now } },
+        where: { familyId: params.familyId, usedAt: null, expiresAt: { gt: now } },
         data: { expiresAt: now },
       });
       const invitation = await prisma.invitation.create({
         data: {
-          familyId: params.id,
+          familyId: params.familyId,
           createdById: user.id,
           token: randomBytes(24).toString("base64url"),
           expiresAt: new Date(now.getTime() + INVITATION_DAYS * 24 * 3600 * 1000),

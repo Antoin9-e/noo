@@ -24,3 +24,16 @@ export interface Member {
 export interface Family extends FamilySummary {
   memberships: Member[];
 }
+
+export interface NooEvent {
+  id: string;
+  title: string;
+  startAt: string;
+  endAt: string | null;
+  allDay: boolean;
+  location: string | null;
+  note: string | null;
+  isCountdown: boolean;
+  createdById: string;
+  participantIds: string[];
+}

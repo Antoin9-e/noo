@@ -33,7 +33,8 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  memberships Membership[]
+  memberships         Membership[]
+  eventParticipations EventParticipant[]
 
   @@unique([email])
   @@map("user")
@@ -49,6 +50,8 @@ model Family {
 
   memberships Membership[]
   invitations Invitation[]
+  events      Event[]
+  activities  Activity[]
 }
 
 model Membership {
@@ -78,6 +81,51 @@ model Invitation {
   family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@index([familyId])
+}
+
+model Event {
+  id          String    @id @default(uuid())
+  familyId    String
+  createdById String
+  title       String
+  startAt     DateTime // UTC
+  endAt       DateTime?
+  allDay      Boolean   @default(false)
+  location    String?
+  note        String?
+  isCountdown Boolean   @default(false) // épinglé en « J-n » sur Aujourd'hui
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  family       Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  participants EventParticipant[]
+
+  @@index([familyId, startAt])
+}
+
+// Couleur d'un événement : 1 participant = sa couleur, tout le foyer = dégradé
+model EventParticipant {
+  eventId String
+  userId  String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+// Fil « Aujourd'hui »
+model Activity {
+  id        String   @id @default(uuid())
+  familyId  String
+  actorId   String
+  type      String // "event.added" | "event.updated" | "wish.added" | "wish.matched" | "wish.done"
+  payload   Json // instantané pour l'affichage : { eventId, title, startAt } etc.
+  createdAt DateTime @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId, createdAt])
 }
 
 model Session {
