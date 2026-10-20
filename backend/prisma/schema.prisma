@@ -10,7 +10,16 @@ generator client {
 
 datasource db {
   provider = "postgresql"
- // url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum PersonColor {
+  VIOLET
+  ORANGE
 }
 
 model User {
@@ -24,53 +33,35 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  //relations
-  responsibleFor IsResponsible[]
-  memberships   IsMember[] 
+  memberships Membership[]
 
   @@unique([email])
   @@map("user")
 }
 
+// Affiché « Foyer » dans l'UI
 model Family {
   id        String   @id @default(uuid())
   name      String
+  timezone  String   @default("Europe/Paris")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  //relations
-  responsibles IsResponsible[]
-  members      IsMember[]
+  memberships Membership[]
 }
 
-model IsMember {
- 
+model Membership {
   userId    String
   familyId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role        @default(MEMBER)
+  color     PersonColor
+  createdAt DateTime    @default(now())
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-
-  @@id([userId, familyId])
-  
-}
-
-model IsResponsible {
- 
-  userId    String
-  familyId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@id([userId, familyId])
-  @@unique([familyId])
-  
-  
+  @@unique([familyId, color])
 }
 
 model Session {

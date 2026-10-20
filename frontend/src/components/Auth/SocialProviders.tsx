@@ -3,9 +3,9 @@ import { authClient } from "@/lib/auth-client";
 
 export default function SocialProviders() {
   const HandleGoogleSignIn = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:5173/",
+      callbackURL: window.location.origin + "/",
     });
   };
   return (

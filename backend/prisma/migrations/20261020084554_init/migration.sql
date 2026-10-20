@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'MEMBER');
+
+-- CreateEnum
+CREATE TYPE "PersonColor" AS ENUM ('VIOLET', 'ORANGE');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -15,6 +21,7 @@ CREATE TABLE "user" (
 CREATE TABLE "Family" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "timezone" TEXT NOT NULL DEFAULT 'Europe/Paris',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -22,23 +29,14 @@ CREATE TABLE "Family" (
 );
 
 -- CreateTable
-CREATE TABLE "IsMember" (
+CREATE TABLE "Membership" (
     "userId" TEXT NOT NULL,
     "familyId" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'MEMBER',
+    "color" "PersonColor" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "IsMember_pkey" PRIMARY KEY ("userId","familyId")
-);
-
--- CreateTable
-CREATE TABLE "IsResponsible" (
-    "userId" TEXT NOT NULL,
-    "familyId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "IsResponsible_pkey" PRIMARY KEY ("userId","familyId")
+    CONSTRAINT "Membership_pkey" PRIMARY KEY ("userId","familyId")
 );
 
 -- CreateTable
@@ -90,7 +88,7 @@ CREATE TABLE "verification" (
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "IsResponsible_familyId_key" ON "IsResponsible"("familyId");
+CREATE UNIQUE INDEX "Membership_familyId_color_key" ON "Membership"("familyId", "color");
 
 -- CreateIndex
 CREATE INDEX "session_userId_idx" ON "session"("userId");
@@ -105,16 +103,10 @@ CREATE INDEX "account_userId_idx" ON "account"("userId");
 CREATE INDEX "verification_identifier_idx" ON "verification"("identifier");
 
 -- AddForeignKey
-ALTER TABLE "IsMember" ADD CONSTRAINT "IsMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "IsMember" ADD CONSTRAINT "IsMember_familyId_fkey" FOREIGN KEY ("familyId") REFERENCES "Family"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "IsResponsible" ADD CONSTRAINT "IsResponsible_familyId_fkey" FOREIGN KEY ("familyId") REFERENCES "Family"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "IsResponsible" ADD CONSTRAINT "IsResponsible_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_familyId_fkey" FOREIGN KEY ("familyId") REFERENCES "Family"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

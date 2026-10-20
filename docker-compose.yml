@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: noo
+      POSTGRES_PASSWORD: noo
+      POSTGRES_DB: noo
+    ports:
+      - "5432:5432"
+    volumes:
+      - noo-pgdata:/var/lib/postgresql/data
+
+volumes:
+  noo-pgdata:

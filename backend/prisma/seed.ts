@@ -1,49 +1,43 @@
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
-import { seedUsers } from "./seed/users";
-import { seedFamilies } from "./seed/families";
+import { prisma } from "../src/lib/prisma.js";
+import { auth } from "../src/lib/auth.js";
 
-const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const FAMILY_ID = "00000000-0000-0000-0000-000000000001";
+const PASSWORD = "password123";
+
+async function upsertUser(name: string, email: string) {
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return existing;
+  const { user } = await auth.api.signUpEmail({ body: { name, email, password: PASSWORD } });
+  return user;
+}
 
 async function main() {
-  console.log("🌱 Starting seed...");
-  const {
-    Eric,
-    Eline,
-    John,
-    Marie,
-    Mathilde,
-    Emmanuelle,
-    Christophe,
-    Peggy,
-    Laurie,
-  } = await seedUsers();
-  await seedFamilies(
-    Eric.id,
-    Eline.id,
-    John.id,
-    Marie.id,
-    Mathilde.id,
-    Emmanuelle.id,
-    Christophe.id,
-    Peggy.id,
-    Laurie.id,
-  );
+  console.log("🌱 Seed…");
+  const toi = await upsertUser("Antoine", "toi@noo.dev");
+  const elle = await upsertUser("Léa", "elle@noo.dev");
 
-  console.log("✅ Seed completed!");
+  await prisma.family.upsert({
+    where: { id: FAMILY_ID },
+    update: {},
+    create: {
+      id: FAMILY_ID,
+      name: "Chez nous",
+      memberships: {
+        create: [
+          { userId: toi.id, role: "ADMIN", color: "VIOLET" },
+          { userId: elle.id, role: "MEMBER", color: "ORANGE" },
+        ],
+      },
+    },
+  });
+
+  console.log(`✅ Comptes : toi@noo.dev / elle@noo.dev (mot de passe : ${PASSWORD})`);
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seed failed:", e);
+    console.error("❌ Seed échoué :", e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(() => prisma.$disconnect());

@@ -1,14 +1,8 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
+import { prisma } from "./prisma.js";
+import { env } from "./env.js";
 
-const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -17,13 +11,18 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
-  trustedOrigins: ["http://localhost:5173"],
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  trustedOrigins: env.appOrigins,
+  baseURL: env.betterAuthUrl,
+  session: {
+    // Une PWA reste ouverte longtemps : session de 60 jours, renouvelée chaque jour d'usage
+    expiresIn: 60 * 60 * 24 * 60,
+    updateAge: 60 * 60 * 24,
+  },
   socialProviders: {
     google: {
       prompt: "select_account",
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: env.googleClientId,
+      clientSecret: env.googleClientSecret,
     },
   },
 });

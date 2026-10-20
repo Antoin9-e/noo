@@ -1,24 +1,15 @@
 import { useSession } from "@/lib/auth-client";
-import { Navigate } from "react-router-dom";
-import { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import type { ReactNode } from "react";
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-}
-
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children }: { children: ReactNode }) {
   const { data: session, isPending } = useSession();
+  const location = useLocation();
 
-  if (isPending) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
-  }
+  if (isPending) return <div className="min-h-dvh" />;
 
   if (!session) {
-    return <Navigate to="/signin" replace />;
+    return <Navigate to="/signin" replace state={{ from: location.pathname }} />;
   }
 
   return <>{children}</>;

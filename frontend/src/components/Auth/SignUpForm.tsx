@@ -42,7 +42,7 @@ export default function SignUpForm() {
         name: data.name,
         password: data.password,
       });
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       // Handle sign-up error (e.g., show error message)
       console.error("Sign-up error:", error);

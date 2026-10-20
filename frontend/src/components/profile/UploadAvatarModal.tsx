@@ -1,7 +1,7 @@
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth-client";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 import React from "react";
 import {
@@ -13,16 +13,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { User } from "lucide-react";
+import { useUploadAvatar } from "@/features/me/hooks";
 
-export function AvatarPopover({
-  imageUrl,
-  userId,
-}: {
-  imageUrl: string;
-  userId: string;
-}) {
+export function AvatarPopover({ imageUrl }: { imageUrl: string }) {
   const [image, setImage] = React.useState<string>(imageUrl);
   const { refetch } = useSession();
+  const upload = useUploadAvatar();
   const type = ["image/png", "image/jpeg", "image/webp"];
 
   const handleClick = async () => {
@@ -42,21 +38,8 @@ export function AvatarPopover({
         toast.error("File size exceeds 5MB. Please select a smaller image.");
         return;
       }
-      const formData = new FormData();
-      formData.append("image", fileInput.files[0]);
-      formData.append("userId", userId);
-
       try {
-        const response = await fetch(
-          "http://localhost:3000/api/upload/avatar",
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
-
-        const data = await response.json();
-        console.log("Upload successful:", data);
+        const data = await upload.mutateAsync(fileInput.files[0]);
         setImage(data.url);
 
         // Recharge la session pour mettre à jour partout
@@ -116,7 +99,6 @@ export function AvatarPopover({
           </Field>
         </FieldGroup>
       </PopoverContent>
-      <Toaster position="bottom-right" />
     </Popover>
   );
 }
