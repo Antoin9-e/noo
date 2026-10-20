@@ -1,37 +1,144 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@custom-variant dark (&:is(.dark *));
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/space-grotesk";
 
+@custom-variant dark (&:is([data-theme="evening"] *));
+
+/*
+ * Noo — direction « Du lever au coucher »
+ * Jour : crème chaud. Soir (≥ 19h) : nuit violette.
+ * Personnes : toi = violet · l'autre = orange · vous deux = dégradé.
+ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --bg: #fbf7f2;
+  --surface: #ffffff;
+  --surface-2: #f3ece4;
+  --ink: #1e1033;
+  --ink-2: rgb(30 16 51 / 0.72);
+  --ink-3: rgb(30 16 51 / 0.5);
+  --line: rgb(30 16 51 / 0.08);
+
+  --violet: #7c3aed;
+  --violet-soft: rgb(124 58 237 / 0.1);
+  --orange: #ea6a12;
+  --orange-soft: rgb(249 115 22 / 0.12);
+  --gradient-from: #7c3aed;
+  --gradient-to: #f97316;
+  --gradient: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+  --gradient-soft: linear-gradient(
+    135deg,
+    rgb(124 58 237 / 0.12),
+    rgb(249 115 22 / 0.12)
+  );
+
+  --danger: #dc2626;
+  --success: #16a34a;
+
+  --shadow-card: 0 1px 2px rgb(76 29 149 / 0.04), 0 12px 32px -16px rgb(76 29 149 / 0.22);
+  --shadow-float: 0 12px 32px -8px rgb(124 58 237 / 0.45);
+  --tabbar: rgb(255 255 255 / 0.82);
+
+  /* shadcn */
+  --radius: 1rem;
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--violet);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--violet-soft);
+  --accent-foreground: var(--ink);
+  --destructive: var(--danger);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--violet);
+
+  color-scheme: light;
+}
+
+[data-theme="evening"] {
+  --bg: #120a22;
+  --surface: #1c1131;
+  --surface-2: #281a42;
+  --ink: #f6f0ff;
+  --ink-2: rgb(246 240 255 / 0.76);
+  --ink-3: rgb(246 240 255 / 0.52);
+  --line: rgb(246 240 255 / 0.09);
+
+  --violet: #a78bfa;
+  --violet-soft: rgb(167 139 250 / 0.14);
+  --orange: #fb923c;
+  --orange-soft: rgb(251 146 60 / 0.14);
+  --gradient-from: #8b5cf6;
+  --gradient-to: #fb923c;
+  --gradient-soft: linear-gradient(
+    135deg,
+    rgb(139 92 246 / 0.2),
+    rgb(251 146 60 / 0.16)
+  );
+
+  --danger: #f87171;
+  --success: #4ade80;
+
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 16px 32px -20px rgb(0 0 0 / 0.7);
+  --shadow-float: 0 12px 32px -8px rgb(139 92 246 / 0.55);
+  --tabbar: rgb(28 17 49 / 0.82);
+
+  color-scheme: dark;
+}
+
+@supports (background: linear-gradient(in oklch, red, blue)) {
+  :root {
+    --gradient: linear-gradient(in oklch 135deg, var(--gradient-from), var(--gradient-to));
+  }
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --font-sans: "DM Sans Variable", system-ui, sans-serif;
+  --font-display: "Space Grotesk Variable", "DM Sans Variable", sans-serif;
+
+  /* 4 tailles, pas plus */
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.125rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.625rem;
+  --text-display: 1.875rem;
+  --text-display--line-height: 2.25rem;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-orange: var(--orange);
+  --color-orange-soft: var(--orange-soft);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -50,13 +157,81 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --animate-pop: pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-rise: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility bg-gradient-noo {
+  background-image: var(--gradient);
+}
+@utility bg-gradient-noo-soft {
+  background-image: var(--gradient-soft);
+}
+@utility text-gradient-noo {
+  background-image: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility pt-safe {
+  padding-top: max(env(safe-area-inset-top), 12px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pressable {
+  transition: transform 120ms ease, opacity 120ms ease;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes rise {
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--bg);
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans text-body antialiased;
+    overscroll-behavior: none;
+    min-height: 100dvh;
+    transition: background-color 400ms ease;
+  }
+  h1, h2, h3 {
+    @apply font-display;
+    letter-spacing: -0.02em;
+  }
+  input, textarea, select {
+    font-size: 16px; /* iOS ne zoome pas */
+  }
+  button {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
   }
 }
