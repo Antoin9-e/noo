@@ -5,13 +5,19 @@ import { familyRoutes } from "./modules/family/routes.js";
 import { eventRoutes } from "./modules/events/routes.js";
 import { wishRoutes } from "./modules/wishes/routes.js";
 import { searchRoutes } from "./modules/search/routes.js";
+import { activityRoutes } from "./modules/activity/routes.js";
+import { realtimeRoutes } from "./modules/realtime/ws.js";
 
 // L'app sans `listen`, pour pouvoir la tester avec app.handle()
 export const app = new Elysia()
-  .all("/api/auth/*", ({ request }) => auth.handler(request))
+  // GET et POST explicites : un `.all` serait masqué par le `GET /*` du front en prod
+  .get("/api/auth/*", ({ request }) => auth.handler(request))
+  .post("/api/auth/*", ({ request }) => auth.handler(request))
   .use(meRoutes)
   .use(familyRoutes)
   .use(eventRoutes)
   .use(wishRoutes)
   .use(searchRoutes)
+  .use(activityRoutes)
+  .use(realtimeRoutes)
   .get("/api/health", () => ({ ok: true }));

@@ -69,3 +69,22 @@ export interface MovieResult {
   imageUrl: string | null;
   overview: string;
 }
+
+export type ActivityType = "event.added" | "event.updated" | "wish.added" | "wish.matched" | "wish.done";
+
+export interface Activity {
+  id: string;
+  actorId: string;
+  type: ActivityType;
+  payload: {
+    title: string;
+    wishId?: string;
+    eventId?: string;
+    category?: WishCategory;
+    imageUrl?: string | null;
+    startAt?: string;
+    allDay?: boolean;
+  };
+  createdAt: string;
+  reactions: Array<{ userId: string; emoji: string }>;
+}

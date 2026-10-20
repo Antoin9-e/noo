@@ -181,9 +181,21 @@ model Activity {
   payload   Json // instantané pour l'affichage : { eventId, title, startAt } etc.
   createdAt DateTime @default(now())
 
-  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family    Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  reactions ActivityReaction[]
 
   @@index([familyId, createdAt])
+}
+
+model ActivityReaction {
+  activityId String
+  userId     String
+  emoji      String // "❤️" "😂" "🔥" "👍"…
+  createdAt  DateTime @default(now())
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@id([activityId, userId]) // une réaction par personne (remplaçable)
 }
 
 model Session {

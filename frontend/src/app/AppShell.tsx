@@ -7,10 +7,12 @@ import { useUi } from "@/stores/ui";
 import { usePreferences } from "@/stores/preferences";
 import { InstallBanner } from "@/features/install/InstallBanner";
 import { EventSheet } from "@/features/agenda/EventSheet";
+import { useRealtime } from "@/lib/realtime";
 
 export function AppShell() {
   const openAdd = useUi((s) => s.openAdd);
   const lastKind = usePreferences((s) => s.lastAddKind);
+  useRealtime(true);
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg pb-[calc(env(safe-area-inset-bottom)+96px)]">

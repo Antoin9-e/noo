@@ -3,6 +3,7 @@ import { authGuard } from "../../plugins/auth-guard.js";
 import { requireMembership } from "../../plugins/family-guard.js";
 import { prisma } from "../../lib/prisma.js";
 import { recordActivity } from "../activity/record.js";
+import { publish } from "../realtime/publish.js";
 
 export const eventSelect = {
   id: true,
@@ -124,6 +125,7 @@ export const eventRoutes = new Elysia({ prefix: "/api/families/:familyId/events"
         });
         return event;
       });
+      publish(params.familyId, ["events", "activity"]);
       return serialize(event);
     },
     { auth: true, body: eventBody },
@@ -173,6 +175,7 @@ export const eventRoutes = new Elysia({ prefix: "/api/families/:familyId/events"
         }
         return event;
       });
+      publish(params.familyId, ["events", "activity"]);
       return serialize(event);
     },
     { auth: true, body: t.Partial(eventBody) },
@@ -185,6 +188,7 @@ export const eventRoutes = new Elysia({ prefix: "/api/families/:familyId/events"
         where: { id: params.eventId, familyId: params.familyId },
       });
       if (!count) return status(404, { error: "Événement introuvable" });
+      publish(params.familyId, ["events"]);
       return { ok: true };
     },
     { auth: true },

@@ -19,9 +19,13 @@ registerRoute(
   }),
 );
 
-// API en lecture : réseau d'abord, cache si hors-ligne ou lent
+// API en lecture : réseau d'abord, cache si hors-ligne ou lent.
+// Jamais l'auth : une vieille réponse « pas de session » déconnecterait l'app hors-ligne.
 registerRoute(
   ({ url, request }) =>
-    request.method === "GET" && url.pathname.startsWith("/api/") && !url.pathname.startsWith("/api/search"),
+    request.method === "GET" &&
+    url.pathname.startsWith("/api/") &&
+    !url.pathname.startsWith("/api/auth/") &&
+    !url.pathname.startsWith("/api/search"),
   new NetworkFirst({ cacheName: "api", networkTimeoutSeconds: 3 }),
 );

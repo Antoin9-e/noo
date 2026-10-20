@@ -4,6 +4,7 @@ import { authGuard } from "../../plugins/auth-guard.js";
 import { requireMembership } from "../../plugins/family-guard.js";
 import { prisma } from "../../lib/prisma.js";
 import { recordActivity } from "../activity/record.js";
+import { publish } from "../realtime/publish.js";
 
 const CATEGORIES = ["MOVIE", "SERIES", "RESTAURANT", "OUTING", "TRIP", "GIFT", "OTHER"] as const;
 const categorySchema = t.Union(CATEGORIES.map((c) => t.Literal(c)));
@@ -141,6 +142,7 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
         }
         return wish;
       });
+      publish(params.familyId, ["wishes", "activity"]);
       return serialize(wish, user.id, memberIds);
     },
     {
@@ -188,6 +190,7 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
         }
         return wish;
       });
+      publish(params.familyId, ["wishes", "activity"]);
       return serialize(wish, user.id, memberIds);
     },
     {
@@ -207,6 +210,7 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
       const existing = await findVisibleWish(params.familyId, params.wishId, user.id);
       if (!existing) return status(404, { error: "Envie introuvable" });
       await prisma.wish.delete({ where: { id: existing.id } });
+      publish(params.familyId, ["wishes"]);
       return { ok: true };
     },
     { auth: true },
@@ -243,6 +247,7 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
         }
         return wish;
       });
+      publish(params.familyId, ["wishes", "activity"]);
       const result = serialize(wish, user.id, memberIds);
       return { ...result, justMatched: !wasMatch && result.isMatch };
     },
@@ -260,6 +265,7 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
         update: { rating: body.rating },
       });
       const wish = await prisma.wish.findUniqueOrThrow({ where: { id: existing.id }, include: wishInclude });
+      publish(params.familyId, ["wishes"]);
       return serialize(wish, user.id, await memberIdsOf(params.familyId));
     },
     { auth: true, body: t.Object({ rating: t.Integer({ minimum: 1, maximum: 5 }) }) },
