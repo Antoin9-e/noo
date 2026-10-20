@@ -8,6 +8,9 @@ import SignUpPage from "@/features/auth/SignUpPage";
 import TodayPage from "@/features/today/TodayPage";
 import AgendaPage from "@/features/agenda/AgendaPage";
 import WishesPage from "@/features/wishes/WishesPage";
+import WishListPage from "@/features/wishes/WishListPage";
+import MatchPage from "@/features/wishes/MatchPage";
+import TonightPage from "@/features/wishes/TonightPage";
 import MePage from "@/features/me/MePage";
 import OnboardingPage from "@/features/household/OnboardingPage";
 import JoinPage from "@/features/household/JoinPage";
@@ -26,6 +29,9 @@ export function AppRoutes() {
             <Route path="/" element={<TodayPage />} />
             <Route path="/agenda" element={<AgendaPage />} />
             <Route path="/envies" element={<WishesPage />} />
+            <Route path="/envies/match" element={<MatchPage />} />
+            <Route path="/envies/:slug" element={<WishListPage />} />
+            <Route path="/ce-soir" element={<TonightPage />} />
             <Route path="/moi" element={<MePage />} />
           </Route>
         </Route>

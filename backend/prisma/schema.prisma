@@ -35,6 +35,7 @@ model User {
 
   memberships         Membership[]
   eventParticipations EventParticipant[]
+  wishVotes           WishVote[]
 
   @@unique([email])
   @@map("user")
@@ -51,6 +52,7 @@ model Family {
   memberships Membership[]
   invitations Invitation[]
   events      Event[]
+  wishes      Wish[]
   activities  Activity[]
 }
 
@@ -112,6 +114,62 @@ model EventParticipant {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([eventId, userId])
+}
+
+enum WishCategory {
+  MOVIE
+  SERIES
+  RESTAURANT
+  OUTING
+  TRIP
+  GIFT
+  OTHER
+}
+
+enum WishStatus {
+  OPEN
+  DONE
+}
+
+model Wish {
+  id          String       @id @default(uuid())
+  familyId    String
+  createdById String
+  category    WishCategory
+  title       String
+  note        String?
+  url         String? // lien Google Maps, site…
+  imageUrl    String? // affiche TMDB, photo
+  externalId  String? // ex. "tmdb:movie:693134"
+  year        Int?
+  forUserId   String? // GIFT : destinataire, qui ne voit PAS l'envie
+  status      WishStatus   @default(OPEN)
+  doneAt      DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  family Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  votes  WishVote[]
+
+  @@index([familyId, category, status])
+}
+
+enum Vote {
+  YES
+  NO
+}
+
+model WishVote {
+  wishId    String
+  userId    String
+  vote      Vote? // null = pas encore swipé
+  rating    Int? // 1–5, après « fait »
+  updatedAt DateTime @updatedAt
+
+  wish Wish @relation(fields: [wishId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([wishId, userId])
 }
 
 // Fil « Aujourd'hui »

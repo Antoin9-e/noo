@@ -3,6 +3,8 @@ import { auth } from "./lib/auth.js";
 import { meRoutes } from "./modules/me/routes.js";
 import { familyRoutes } from "./modules/family/routes.js";
 import { eventRoutes } from "./modules/events/routes.js";
+import { wishRoutes } from "./modules/wishes/routes.js";
+import { searchRoutes } from "./modules/search/routes.js";
 
 // L'app sans `listen`, pour pouvoir la tester avec app.handle()
 export const app = new Elysia()
@@ -10,4 +12,6 @@ export const app = new Elysia()
   .use(meRoutes)
   .use(familyRoutes)
   .use(eventRoutes)
+  .use(wishRoutes)
+  .use(searchRoutes)
   .get("/api/health", () => ({ ok: true }));

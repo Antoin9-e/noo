@@ -37,3 +37,35 @@ export interface NooEvent {
   createdById: string;
   participantIds: string[];
 }
+
+export type WishCategory = "MOVIE" | "SERIES" | "RESTAURANT" | "OUTING" | "TRIP" | "GIFT" | "OTHER";
+export type Vote = "YES" | "NO";
+
+export interface Wish {
+  id: string;
+  category: WishCategory;
+  title: string;
+  note: string | null;
+  url: string | null;
+  imageUrl: string | null;
+  externalId: string | null;
+  year: number | null;
+  forUserId: string | null;
+  status: "OPEN" | "DONE";
+  doneAt: string | null;
+  createdById: string;
+  createdAt: string;
+  votes: Array<{ userId: string; vote: Vote | null; rating: number | null }>;
+  yesBy: string[];
+  myVote: Vote | null;
+  isMatch: boolean;
+}
+
+export interface MovieResult {
+  externalId: string;
+  category: "MOVIE" | "SERIES";
+  title: string;
+  year: number | null;
+  imageUrl: string | null;
+  overview: string;
+}
