@@ -14,6 +14,7 @@ import { useInstall } from "@/features/install/useInstall";
 import { IosInstallSheet } from "@/features/install/IosInstallSheet";
 import { useHousehold, useUploadAvatar } from "@/features/household/hooks";
 import { HouseholdSection } from "@/features/household/HouseholdSection";
+import { NotificationsSection } from "@/features/push/NotificationsSection";
 import { toneOf } from "@/lib/person-color";
 
 const THEMES: Array<{ value: ThemePreference; label: string; icon: typeof Sun }> = [
@@ -98,6 +99,10 @@ export default function MePage() {
 
         <Section title="Notre foyer">
           <HouseholdSection />
+        </Section>
+
+        <Section title="Notifications">
+          <NotificationsSection />
         </Section>
 
         <Section title="Apparence">

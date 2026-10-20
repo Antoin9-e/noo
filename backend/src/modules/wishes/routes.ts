@@ -5,6 +5,17 @@ import { requireMembership } from "../../plugins/family-guard.js";
 import { prisma } from "../../lib/prisma.js";
 import { recordActivity } from "../activity/record.js";
 import { publish } from "../realtime/publish.js";
+import { firstNameOf, notifyLater, otherMembers } from "../push/notify.js";
+
+const EMOJI: Record<WishCategory, string> = {
+  MOVIE: "🎬",
+  SERIES: "📺",
+  RESTAURANT: "🍽️",
+  OUTING: "🎟️",
+  TRIP: "✈️",
+  GIFT: "🎁",
+  OTHER: "💡",
+};
 
 const CATEGORIES = ["MOVIE", "SERIES", "RESTAURANT", "OUTING", "TRIP", "GIFT", "OTHER"] as const;
 const categorySchema = t.Union(CATEGORIES.map((c) => t.Literal(c)));
@@ -143,6 +154,15 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
         return wish;
       });
       publish(params.familyId, ["wishes", "activity"]);
+      if (!isGift) {
+        const name = await firstNameOf(user.id);
+        notifyLater(memberIds.filter((id) => id !== user.id), "wish.added", {
+          title: `${name} a une nouvelle envie`,
+          body: `${EMOJI[wish.category]} ${wish.title} — à toi de swiper !`,
+          url: "/envies/match",
+          tag: "wish-added",
+        });
+      }
       return serialize(wish, user.id, memberIds);
     },
     {
@@ -249,7 +269,17 @@ export const wishRoutes = new Elysia({ prefix: "/api/families/:familyId/wishes" 
       });
       publish(params.familyId, ["wishes", "activity"]);
       const result = serialize(wish, user.id, memberIds);
-      return { ...result, justMatched: !wasMatch && result.isMatch };
+      const justMatched = !wasMatch && result.isMatch;
+      if (justMatched) {
+        // L'autre apprend le match ; moi je le vois déjà à l'écran
+        notifyLater(memberIds.filter((id) => id !== user.id), "wish.matched", {
+          title: "C'est un match ! 💞",
+          body: `${EMOJI[wish.category]} ${wish.title}`,
+          url: "/envies",
+          tag: `match-${wish.id}`,
+        }, { throttle: false });
+      }
+      return { ...result, justMatched };
     },
     { auth: true, body: t.Object({ vote: t.Union([t.Literal("YES"), t.Literal("NO")]) }) },
   )

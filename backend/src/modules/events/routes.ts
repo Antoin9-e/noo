@@ -4,6 +4,7 @@ import { requireMembership } from "../../plugins/family-guard.js";
 import { prisma } from "../../lib/prisma.js";
 import { recordActivity } from "../activity/record.js";
 import { publish } from "../realtime/publish.js";
+import { firstNameOf, notifyLater } from "../push/notify.js";
 
 export const eventSelect = {
   id: true,
@@ -126,6 +127,23 @@ export const eventRoutes = new Elysia({ prefix: "/api/families/:familyId/events"
         return event;
       });
       publish(params.familyId, ["events", "activity"]);
+      // On prévient l'autre seulement quand ça le concerne
+      const others = participantIds.filter((id) => id !== user.id);
+      if (others.length) {
+        const when = event.startAt.toLocaleString("fr-FR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          ...(event.allDay ? {} : { hour: "2-digit", minute: "2-digit" }),
+          timeZone: "Europe/Paris",
+        });
+        notifyLater(others, "event.added", {
+          title: `${await firstNameOf(user.id)} a prévu quelque chose`,
+          body: `📅 ${event.title} — ${when}`,
+          url: "/agenda",
+          tag: "event-added",
+        });
+      }
       return serialize(event);
     },
     { auth: true, body: eventBody },
@@ -157,6 +175,8 @@ export const eventRoutes = new Elysia({ prefix: "/api/families/:familyId/events"
             location: body.location === undefined ? undefined : body.location?.trim() || null,
             note: body.note === undefined ? undefined : body.note?.trim() || null,
             isCountdown: body.isCountdown,
+            // Nouvelle heure : le rappel doit repartir
+            reminderSentAt: startAt.getTime() !== existing.startAt.getTime() ? null : undefined,
             participants: participantIds && {
               deleteMany: {},
               create: participantIds.map((userId) => ({ userId })),

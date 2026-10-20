@@ -29,3 +29,41 @@ registerRoute(
     !url.pathname.startsWith("/api/search"),
   new NetworkFirst({ cacheName: "api", networkTimeoutSeconds: 3 }),
 );
+
+// --- Notifications push ---
+interface PushPayload {
+  title: string;
+  body: string;
+  url: string;
+  tag: string;
+}
+
+self.addEventListener("push", (event) => {
+  const data = (event.data?.json() ?? {}) as Partial<PushPayload>;
+  event.waitUntil(
+    self.registration.showNotification(data.title ?? "Noo", {
+      body: data.body,
+      tag: data.tag,
+      icon: "/pwa-192x192.png",
+      badge: "/pwa-64x64.png",
+      data: { url: data.url ?? "/" },
+    }),
+  );
+});
+
+// Ouvre (ou ramène au premier plan) l'app sur la bonne page
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL((event.notification.data?.url as string) ?? "/", self.location.origin).href;
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const existing = windows.find((w) => w.url.startsWith(self.location.origin));
+      if (existing) {
+        await existing.focus();
+        return existing.navigate(url);
+      }
+      return self.clients.openWindow(url);
+    })(),
+  );
+});

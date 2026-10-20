@@ -7,6 +7,7 @@ import { wishRoutes } from "./modules/wishes/routes.js";
 import { searchRoutes } from "./modules/search/routes.js";
 import { activityRoutes } from "./modules/activity/routes.js";
 import { realtimeRoutes } from "./modules/realtime/ws.js";
+import { pushRoutes } from "./modules/push/routes.js";
 
 // L'app sans `listen`, pour pouvoir la tester avec app.handle()
 export const app = new Elysia()
@@ -20,4 +21,5 @@ export const app = new Elysia()
   .use(searchRoutes)
   .use(activityRoutes)
   .use(realtimeRoutes)
+  .use(pushRoutes)
   .get("/api/health", () => ({ ok: true }));

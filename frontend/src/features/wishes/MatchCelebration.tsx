@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { CalendarPlus } from "lucide-react";
+import { Bell, CalendarPlus } from "lucide-react";
+import { toast } from "sonner";
+import { usePush } from "@/features/push/usePush";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/common/Avatar";
 import { useHousehold } from "@/features/household/hooks";
@@ -22,6 +24,7 @@ export function MatchCelebration() {
   const close = useUi((s) => s.closeCelebration);
   const openEvent = useUi((s) => s.openEvent);
   const { members } = useHousehold();
+  const push = usePush();
 
   useEffect(() => {
     if (wish) tap([20, 60, 30, 60, 40]);
@@ -70,6 +73,19 @@ export function MatchCelebration() {
         <Button size="lg" className="w-full bg-white text-[#4c1d95] shadow-card" onClick={plan}>
           <CalendarPlus /> Planifier
         </Button>
+        {/* Opt-in au bon moment : juste après un match, jamais au premier lancement */}
+        {push.state === "off" && (
+          <Button
+            variant="ghost"
+            className="w-full bg-white/15 text-white"
+            disabled={push.busy}
+            onClick={async () => {
+              if (await push.enable().catch(() => false)) toast.success("On te préviendra des prochains matchs 🔔");
+            }}
+          >
+            <Bell /> Me prévenir des prochains matchs
+          </Button>
+        )}
         <Button variant="ghost" className="w-full text-white" onClick={close}>
           Continuer
         </Button>

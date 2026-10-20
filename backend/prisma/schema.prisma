@@ -36,6 +36,7 @@ model User {
   memberships         Membership[]
   eventParticipations EventParticipant[]
   wishVotes           WishVote[]
+  pushSubscriptions   PushSubscription[]
 
   @@unique([email])
   @@map("user")
@@ -86,18 +87,19 @@ model Invitation {
 }
 
 model Event {
-  id          String    @id @default(uuid())
-  familyId    String
-  createdById String
-  title       String
-  startAt     DateTime // UTC
-  endAt       DateTime?
-  allDay      Boolean   @default(false)
-  location    String?
-  note        String?
-  isCountdown Boolean   @default(false) // épinglé en « J-n » sur Aujourd'hui
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  familyId       String
+  createdById    String
+  title          String
+  startAt        DateTime // UTC
+  endAt          DateTime?
+  allDay         Boolean   @default(false)
+  location       String?
+  note           String?
+  isCountdown    Boolean   @default(false) // épinglé en « J-n » sur Aujourd'hui
+  reminderSentAt DateTime? // rappel push 1 h avant
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   family       Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
   participants EventParticipant[]
@@ -196,6 +198,19 @@ model ActivityReaction {
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@id([activityId, userId]) // une réaction par personne (remplaçable)
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Session {
