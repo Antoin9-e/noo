@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUi, type NoteDraft } from "@/stores/ui";
 import { useHousehold } from "@/features/household/hooks";
-import { isSearchDisabled } from "@/features/wishes/hooks";
 import { useDebounced } from "@/lib/useDebounced";
 import { firstName } from "@/lib/dates";
 import { tap } from "@/lib/haptics";
@@ -47,7 +46,8 @@ export function NoteSheet() {
   const linkUrl = isLink ? (spotifyUrlIn(typed) ?? "") : "";
   const preview = useSpotifyPreview(picked ? "" : linkUrl);
   const search = useMusicSearch(picked || isLink ? "" : typed);
-  const searchOff = isSearchDisabled(search.error);
+  // Pas configurée (503) ou Spotify en panne : on retombe sur le lien à coller
+  const searchOff = search.isError;
   const music = picked ?? (isLink ? preview.data : undefined);
   const spotifyUrl = picked ? openInSpotify(picked.type, picked.id) : linkUrl;
   const linkInvalid = !picked && link.trim() !== "" && (isLink ? !linkUrl || preview.isError : searchOff);
