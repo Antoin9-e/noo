@@ -1,77 +1,113 @@
-// Types de base
-export interface User {
+export type PersonColor = "VIOLET" | "ORANGE";
+export type Role = "ADMIN" | "MEMBER";
+
+export interface FamilySummary {
+  id: string;
+  name: string;
+  timezone: string;
+}
+
+export interface Me {
   id: string;
   name: string;
   email: string;
-  emailVerified: boolean;
   image: string | null;
-  createdAt: string;
-  updatedAt: string;
+  memberships: Array<{ role: Role; color: PersonColor; family: FamilySummary }>;
 }
 
-export interface Session {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  };
-  expires: string;
+export interface Member {
+  role: Role;
+  color: PersonColor;
+  user: { id: string; name: string; image: string | null };
 }
 
-export interface Family {
+export interface Family extends FamilySummary {
+  memberships: Member[];
+}
+
+export interface NooEvent {
   id: string;
-  name: string;
+  title: string;
+  startAt: string;
+  endAt: string | null;
+  allDay: boolean;
+  location: string | null;
+  note: string | null;
+  isCountdown: boolean;
+  createdById: string;
+  participantIds: string[];
+}
+
+export type WishCategory = "MOVIE" | "SERIES" | "RESTAURANT" | "OUTING" | "TRIP" | "GIFT" | "OTHER";
+export type Vote = "YES" | "NO";
+
+export interface Wish {
+  id: string;
+  category: WishCategory;
+  title: string;
+  note: string | null;
+  url: string | null;
+  imageUrl: string | null;
+  externalId: string | null;
+  year: number | null;
+  forUserId: string | null;
+  status: "OPEN" | "DONE";
+  doneAt: string | null;
+  createdById: string;
   createdAt: string;
-  updatedAt: string;
+  votes: Array<{ userId: string; vote: Vote | null; rating: number | null }>;
+  yesBy: string[];
+  myVote: Vote | null;
+  isMatch: boolean;
 }
 
-export interface IsMember {
-  userId: string;
-  familyId: string;
+export interface MovieResult {
+  externalId: string;
+  category: "MOVIE" | "SERIES";
+  title: string;
+  year: number | null;
+  imageUrl: string | null;
+  overview: string;
+}
+
+export type ActivityType = "event.added" | "event.updated" | "wish.added" | "wish.matched" | "wish.done";
+
+export interface Activity {
+  id: string;
+  actorId: string;
+  type: ActivityType;
+  payload: {
+    title: string;
+    wishId?: string;
+    eventId?: string;
+    category?: WishCategory;
+    imageUrl?: string | null;
+    startAt?: string;
+    allDay?: boolean;
+  };
   createdAt: string;
-  updatedAt: string;
-  family: Family;
+  reactions: Array<{ userId: string; emoji: string }>;
 }
 
-export interface IsResponsible {
-  userId: string;
-  familyId: string;
+export interface Note {
+  id: string;
+  authorId: string;
+  text: string | null;
+  spotifyType: string | null;
+  spotifyId: string | null;
+  musicTitle: string | null;
+  musicArtist: string | null;
+  musicImage: string | null;
+  notified: boolean;
+  readAt: string | null;
   createdAt: string;
-  updatedAt: string;
-  family: Family;
+  reactions: Array<{ userId: string; emoji: string }>;
 }
 
-// User avec ses relations
-export interface UserWithRelations extends User {
-  memberships: IsMember[];
-  responsibleFor: IsResponsible[];
-}
-
-// Réponse API pour un user
-export interface UserResponse {
-  user: UserWithRelations;
-}
-
-// Family avec ses membres
-export interface FamilyWithMembers extends Family {
-  members: Array<{
-    user: User;
-    userId: string;
-    familyId: string;
-  }>;
-  responsibles: Array<{
-    user: User;
-    userId: string;
-    familyId: string;
-  }>;
-}
-
-// Réponse API pour une famille
-export interface FamilyResponse {
-  family: FamilyWithMembers;
-}
-
-export interface AllFamiliesResponse {
-  families: FamilyWithMembers[];
+export interface SpotifyItem {
+  type: string;
+  id: string;
+  title: string | null;
+  artist: string | null;
+  image: string | null;
 }

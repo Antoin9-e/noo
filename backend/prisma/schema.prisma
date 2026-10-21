@@ -10,7 +10,16 @@ generator client {
 
 datasource db {
   provider = "postgresql"
- // url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum PersonColor {
+  VIOLET
+  ORANGE
 }
 
 model User {
@@ -24,53 +33,218 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  //relations
-  responsibleFor IsResponsible[]
-  memberships   IsMember[] 
+  memberships         Membership[]
+  eventParticipations EventParticipant[]
+  wishVotes           WishVote[]
+  pushSubscriptions   PushSubscription[]
 
   @@unique([email])
   @@map("user")
 }
 
+// Affiché « Foyer » dans l'UI
 model Family {
   id        String   @id @default(uuid())
   name      String
+  timezone  String   @default("Europe/Paris")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  //relations
-  responsibles IsResponsible[]
-  members      IsMember[]
+  memberships Membership[]
+  invitations Invitation[]
+  events      Event[]
+  wishes      Wish[]
+  activities  Activity[]
+  notes       Note[]
 }
 
-model IsMember {
- 
+model Membership {
   userId    String
   familyId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role        @default(MEMBER)
+  color     PersonColor
+  createdAt DateTime    @default(now())
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   @@id([userId, familyId])
-  
+  @@unique([familyId, color])
 }
 
-model IsResponsible {
- 
+model Invitation {
+  id          String    @id @default(uuid())
+  familyId    String
+  token       String    @unique
+  createdById String
+  expiresAt   DateTime
+  usedById    String?
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+}
+
+model Event {
+  id             String    @id @default(uuid())
+  familyId       String
+  createdById    String
+  title          String
+  startAt        DateTime // UTC
+  endAt          DateTime?
+  allDay         Boolean   @default(false)
+  location       String?
+  note           String?
+  isCountdown    Boolean   @default(false) // épinglé en « J-n » sur Aujourd'hui
+  reminderSentAt DateTime? // rappel push 1 h avant
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  family       Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  participants EventParticipant[]
+
+  @@index([familyId, startAt])
+}
+
+// Couleur d'un événement : 1 participant = sa couleur, tout le foyer = dégradé
+model EventParticipant {
+  eventId String
+  userId  String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
+
+enum WishCategory {
+  MOVIE
+  SERIES
+  RESTAURANT
+  OUTING
+  TRIP
+  GIFT
+  OTHER
+}
+
+enum WishStatus {
+  OPEN
+  DONE
+}
+
+model Wish {
+  id          String       @id @default(uuid())
+  familyId    String
+  createdById String
+  category    WishCategory
+  title       String
+  note        String?
+  url         String? // lien Google Maps, site…
+  imageUrl    String? // affiche TMDB, photo
+  externalId  String? // ex. "tmdb:movie:693134"
+  year        Int?
+  forUserId   String? // GIFT : destinataire, qui ne voit PAS l'envie
+  status      WishStatus   @default(OPEN)
+  doneAt      DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  family Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  votes  WishVote[]
+
+  @@index([familyId, category, status])
+}
+
+enum Vote {
+  YES
+  NO
+}
+
+model WishVote {
+  wishId    String
   userId    String
-  familyId  String
-  createdAt DateTime @default(now())
+  vote      Vote? // null = pas encore swipé
+  rating    Int? // 1–5, après « fait »
   updatedAt DateTime @updatedAt
 
-  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wish Wish @relation(fields: [wishId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([userId, familyId])
-  @@unique([familyId])
-  
-  
+  @@id([wishId, userId])
+}
+
+// Fil « Aujourd'hui »
+model Activity {
+  id        String   @id @default(uuid())
+  familyId  String
+  actorId   String
+  type      String // "event.added" | "event.updated" | "wish.added" | "wish.matched" | "wish.done"
+  payload   Json // instantané pour l'affichage : { eventId, title, startAt } etc.
+  createdAt DateTime @default(now())
+
+  family    Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  reactions ActivityReaction[]
+
+  @@index([familyId, createdAt])
+}
+
+model ActivityReaction {
+  activityId String
+  userId     String
+  emoji      String // "❤️" "😂" "🔥" "👍"…
+  createdAt  DateTime @default(now())
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@id([activityId, userId]) // une réaction par personne (remplaçable)
+}
+
+// « Nos mots » : un petit mot et/ou un morceau Spotify, jusqu'à ce qu'on le supprime
+model Note {
+  id          String    @id @default(uuid())
+  familyId    String
+  authorId    String
+  text        String?
+  // Lien Spotify partagé, avec un instantané pour l'affichage
+  spotifyType String? // "track" | "album" | "playlist" | "episode" | "show" | "artist"
+  spotifyId   String?
+  musicTitle  String?
+  musicArtist String?
+  musicImage  String?
+  notified    Boolean   @default(false) // envoyé en notif (sinon juste posé)
+  readAt      DateTime? // vu par l'autre
+  createdAt   DateTime  @default(now())
+
+  family    Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  reactions NoteReaction[]
+
+  @@index([familyId, createdAt])
+}
+
+model NoteReaction {
+  noteId    String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, userId])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Session {

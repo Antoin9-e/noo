@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { attachDatabasePool } from "@vercel/functions";
+import { Pool } from "pg";
+import { env } from "./env.js";
 
-const connectionString = process.env.DATABASE_URL as string;
+const pool = new Pool({ connectionString: env.databaseUrl });
+// Sur Vercel (Fluid compute) : ferme les connexions inactives avant la suspension de l'instance
+attachDatabasePool(pool);
 
-const adapter = new PrismaPg({
-  connectionString,
-});
-
-const prisma = new PrismaClient({ adapter });
-export { prisma };
+export const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });

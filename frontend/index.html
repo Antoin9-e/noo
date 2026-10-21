@@ -1,19 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf7f2" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Noo" />
+    <meta name="description" content="Votre petit monde à deux : agenda, envies et soirées." />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <title>Noo</title>
+    <script>
+      // Applique le thème avant le premier rendu (pas de flash)
+      (function () {
+        var pref = "auto";
+        try {
+          pref = JSON.parse(localStorage.getItem("noo-preferences")).state.theme || "auto";
+        } catch (e) {}
+        var h = new Date().getHours();
+        var theme = pref === "auto" ? (h >= 19 || h < 7 ? "evening" : "day") : pref;
+        document.documentElement.dataset.theme = theme;
+        if (theme === "evening")
+          document.querySelector('meta[name="theme-color"]').setAttribute("content", "#120a22");
+      })();
+    </script>
   </head>
   <body>
-    <div id="root" class="min-h-screen w-full"></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

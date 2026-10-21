@@ -1,22 +1,14 @@
-import { Elysia } from "elysia";
-import { auth } from "./src/lib/auth.js";
-import { cors } from "@elysiajs/cors";
-import { userRoutes } from "./src/routes/user.js";
-import { familyRoutes } from "./src/routes/family.js";
-import { uploadRoutes } from "./src/routes/upload_avatar.js";
+import { app } from "./src/app.js";
+import { env } from "./src/lib/env.js";
+import { serveFrontend } from "./src/lib/static.js";
+import { startReminderLoop } from "./src/modules/push/reminders.js";
 
-const app = new Elysia()
-  .use(
-    cors({
-      origin: "http://localhost:5173",
-      credentials: true,
-    }),
-  )
-  .use(userRoutes)
-  .use(familyRoutes)
-  .use(uploadRoutes)
-  .all("/api/auth/*", ({ request }) => auth.handler(request))
-  .get("/", () => "Backend is running!")
-  .listen(3000);
+if (env.isProd) {
+  app.use(serveFrontend(process.env.FRONTEND_DIST ?? "../frontend/dist"));
+}
 
-console.log(`🦊 Server running at ${app.server?.hostname}:${app.server?.port}`);
+app.listen(env.port);
+// Serveur permanent (dev, Docker) : rappels en interne. Sur Vercel : /api/cron/reminders
+startReminderLoop();
+
+console.log(`🦊 Noo tourne sur http://localhost:${env.port}`);

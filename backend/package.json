@@ -4,38 +4,35 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@elysiajs/eden": "^1.4.6",
-    "@types/bcrypt": "^6.0.0",
     "@types/bun": "latest",
-    "@types/multer": "^2.0.0",
     "@types/pg": "^8.16.0",
+    "@types/web-push": "^3.6.4",
     "prisma": "^7.3.0",
-    "vitest": "^4.0.18"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.4.1",
+    "@neon/config": "^1.9.2",
+    "@neon/env": "^1.6.3",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
-    "bcrypt": "^6.0.0",
+    "@vercel/functions": "^3.10.1",
     "better-auth": "^1.4.17",
     "cloudinary": "^2.9.0",
     "elysia": "^1.4.22",
-    "multer": "^2.0.2",
+    "file-type": "^22.2.0",
     "pg": "^8.17.2",
-    "zod": "^4.3.5"
+    "web-push": "^3.6.7"
   },
   "scripts": {
-    "dev": "elysia index.ts --watch",
-    "build": "tsc",
-    "start": "node index.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "test": "vitest"
-  },
-  "prisma": {
-    "seed": "bun run prisma/seed.ts"
+    "dev": "bun --watch index.ts",
+    "start": "NODE_ENV=production bun index.ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
+    "db:seed": "bun run prisma/seed.ts",
+    "test": "bun test",
+    "vapid": "bun run scripts/vapid.ts"
   }
 }
