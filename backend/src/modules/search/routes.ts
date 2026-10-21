@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { authGuard } from "../../plugins/auth-guard.js";
 import { env } from "../../lib/env.js";
+import { searchEnabled, searchTracks } from "../../lib/spotify.js";
 
 const TMDB = "https://api.themoviedb.org/3";
 const POSTER = "https://image.tmdb.org/t/p/w342";
@@ -67,6 +68,21 @@ export const searchRoutes = new Elysia({ prefix: "/api/search" })
             overview: r.overview ?? "",
           };
         });
+    },
+    { auth: true, query: t.Object({ q: t.String({ maxLength: 100 }) }) },
+  )
+  .get(
+    "/music",
+    async ({ query, status }) => {
+      if (!searchEnabled()) return status(503, { error: "Recherche Spotify non configurée" });
+      const q = query.q.trim();
+      if (q.length < 2) return [];
+      try {
+        return await searchTracks(q);
+      } catch (e) {
+        console.error(e);
+        return status(502, { error: "Spotify ne répond pas" });
+      }
     },
     { auth: true, query: t.Object({ q: t.String({ maxLength: 100 }) }) },
   );

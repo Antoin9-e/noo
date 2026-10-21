@@ -39,6 +39,18 @@ export function useSpotifyPreview(url: string) {
   });
 }
 
+// Recherche via l'API Spotify (503 si les identifiants ne sont pas configurés)
+export function useMusicSearch(q: string) {
+  return useQuery({
+    queryKey: ["search", "music", q],
+    queryFn: () => api<SpotifyItem[]>(`/search/music?q=${encodeURIComponent(q)}`),
+    enabled: q.trim().length >= 2,
+    staleTime: 5 * 60_000,
+    retry: false,
+    placeholderData: (prev) => prev,
+  });
+}
+
 export function useSendNote() {
   const qc = useQueryClient();
   const familyId = useActiveFamilyId();

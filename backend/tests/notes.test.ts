@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach, spyOn } from "bun:test";
 import webpush from "web-push";
 import { api, createFamily, createUser, type TestUser } from "./helpers.js";
 import { parseSpotify } from "../src/lib/spotify.js";
+import { env } from "../src/lib/env.js";
 import { pushEnabled } from "../src/modules/push/notify.js";
 
 const TRACK = "4cOdK2wGLETKBW3PvgPWqT";
@@ -11,8 +12,26 @@ const PAGE = `<html><head>
 <meta property="og:image" content="https://i.scdn.co/image/cover"/>
 </head></html>`;
 
-// Pas de réseau en test : open.spotify.com répond une page figée
-const fetchSpy = spyOn(globalThis, "fetch").mockImplementation((async () => new Response(PAGE)) as unknown as typeof fetch);
+const SEARCH = {
+  tracks: {
+    items: [
+      {
+        id: TRACK,
+        name: "Never Gonna Give You Up",
+        artists: [{ name: "Rick Astley" }],
+        album: { images: [{ url: "https://i.scdn.co/640", width: 640 }, { url: "https://i.scdn.co/300", width: 300 }] },
+      },
+    ],
+  },
+};
+
+// Pas de réseau en test : Spotify répond des pages et des JSON figés
+const fetchSpy = spyOn(globalThis, "fetch").mockImplementation((async (input: string | URL) => {
+  const url = String(input);
+  if (url.includes("accounts.spotify.com")) return Response.json({ access_token: "tok", expires_in: 3600 });
+  if (url.includes("api.spotify.com/v1/search")) return Response.json(SEARCH);
+  return new Response(PAGE);
+}) as unknown as typeof fetch);
 const send = spyOn(webpush, "sendNotification").mockResolvedValue({ statusCode: 201, body: "", headers: {} });
 const flush = () => Bun.sleep(50);
 
@@ -22,6 +41,30 @@ describe("Liens Spotify", () => {
     expect(parseSpotify(`Écoute ça https://open.spotify.com/intl-fr/album/${TRACK}`)).toEqual({ type: "album", id: TRACK });
     expect(parseSpotify(`spotify:playlist:${TRACK}`)).toEqual({ type: "playlist", id: TRACK });
     expect(parseSpotify("https://www.deezer.com/track/123")).toBeNull();
+  });
+});
+
+describe("Recherche Spotify", () => {
+  let toi: TestUser;
+  beforeAll(async () => {
+    toi = await createUser("Toi");
+  });
+
+  it("est désactivée sans identifiants", async () => {
+    const saved = { ...env };
+    env.spotifyClientId = "";
+    expect((await api(toi, "GET", "/api/search/music?q=rick")).status).toBe(503);
+    Object.assign(env, saved);
+  });
+
+  it("renvoie des morceaux avec artiste et pochette moyenne", async () => {
+    const saved = { ...env };
+    Object.assign(env, { spotifyClientId: "id", spotifyClientSecret: "secret" });
+    const res = await api(toi, "GET", "/api/search/music?q=rick");
+    Object.assign(env, saved);
+    expect(res.body).toEqual([
+      { type: "track", id: TRACK, title: "Never Gonna Give You Up", artist: "Rick Astley", image: "https://i.scdn.co/300" },
+    ]);
   });
 });
 

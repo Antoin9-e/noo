@@ -38,6 +38,7 @@ Pour déployer à chaque push : `npx vercel git connect`.
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | console Google Cloud (facultatif) |
 | `CLOUDINARY_*` | tes clés Cloudinary (photos de profil) |
 | `TMDB_API_KEY` | https://www.themoviedb.org/settings/api (facultatif : sans clé, la recherche de films est désactivée) |
+| `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | app sur https://developer.spotify.com, propriétaire Premium (facultatif : sans clés, on colle un lien au lieu de chercher un morceau) |
 
 `BETTER_AUTH_URL` et `APP_ORIGIN` valent par défaut l'URL de prod fournie par Vercel
 (`VERCEL_PROJECT_PRODUCTION_URL`) : à définir seulement avec un domaine perso.

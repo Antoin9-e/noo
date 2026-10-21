@@ -19,6 +19,8 @@ export const env = {
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
   tmdbApiKey: process.env.TMDB_API_KEY ?? "",
+  spotifyClientId: process.env.SPOTIFY_CLIENT_ID ?? "",
+  spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET ?? "",
   vapidPublicKey: process.env.VAPID_PUBLIC_KEY ?? "",
   vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
   vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:noo@example.com",

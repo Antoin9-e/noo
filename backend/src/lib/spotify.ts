@@ -1,5 +1,8 @@
+import { env } from "./env.js";
+
 // Lien Spotify collé ou partagé → ce qu'il faut pour l'afficher.
 // Pas de compte ni de clé : la page publique d'open.spotify.com suffit.
+// La recherche, elle, passe par l'API Web (identifiants de l'app, sans connexion utilisateur).
 
 const TYPES = ["track", "album", "playlist", "episode", "show", "artist"] as const;
 export type SpotifyType = (typeof TYPES)[number];
@@ -94,4 +97,51 @@ async function resolveShortLinkSafe(url: string | undefined) {
   }
 }
 
-export const spotifyUrl = (type: string, id: string) => `https://open.spotify.com/${type}/${id}`;
+export const searchEnabled = () => !!(env.spotifyClientId && env.spotifyClientSecret);
+
+let token: { value: string; expiresAt: number } | null = null;
+
+// Jeton « client credentials », valable 1 h : on le garde en mémoire tant qu'il est frais
+async function accessToken() {
+  if (token && token.expiresAt > Date.now() + 60_000) return token.value;
+  const res = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      authorization: `Basic ${btoa(`${env.spotifyClientId}:${env.spotifyClientSecret}`)}`,
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!res.ok) throw new Error(`Spotify token ${res.status}`);
+  const data = (await res.json()) as { access_token: string; expires_in: number };
+  token = { value: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
+  return token.value;
+}
+
+interface ApiTrack {
+  id: string;
+  name: string;
+  artists: Array<{ name: string }>;
+  album: { images: Array<{ url: string; width: number | null }> };
+}
+
+export async function searchTracks(q: string): Promise<SpotifyItem[]> {
+  const url = new URL("https://api.spotify.com/v1/search");
+  url.search = new URLSearchParams({ q, type: "track", limit: "10", market: "FR" }).toString();
+  const res = await fetch(url, {
+    headers: { authorization: `Bearer ${await accessToken()}` },
+    signal: AbortSignal.timeout(5000),
+  });
+  if (res.status === 401) token = null;
+  if (!res.ok) throw new Error(`Spotify search ${res.status}`);
+  const data = (await res.json()) as { tracks: { items: ApiTrack[] } };
+  return data.tracks.items.map((t) => ({
+    type: "track",
+    id: t.id,
+    title: t.name,
+    artist: t.artists.map((a) => a.name).join(", "),
+    // La plus petite pochette qui reste nette (≈ 300 px)
+    image: t.album.images.find((i) => (i.width ?? 0) <= 320)?.url ?? t.album.images[0]?.url ?? null,
+  }));
+}
