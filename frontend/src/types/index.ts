@@ -88,3 +88,26 @@ export interface Activity {
   createdAt: string;
   reactions: Array<{ userId: string; emoji: string }>;
 }
+
+export interface Note {
+  id: string;
+  authorId: string;
+  text: string | null;
+  spotifyType: string | null;
+  spotifyId: string | null;
+  musicTitle: string | null;
+  musicArtist: string | null;
+  musicImage: string | null;
+  notified: boolean;
+  readAt: string | null;
+  createdAt: string;
+  reactions: Array<{ userId: string; emoji: string }>;
+}
+
+export interface SpotifyItem {
+  type: string;
+  id: string;
+  title: string | null;
+  artist: string | null;
+  image: string | null;
+}

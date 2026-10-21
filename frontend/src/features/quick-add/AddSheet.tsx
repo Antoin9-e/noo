@@ -33,6 +33,7 @@ export function AddSheet() {
   const draft = useUi((s) => s.addDraft);
   const close = useUi((s) => s.closeAdd);
   const openEvent = useUi((s) => s.openEvent);
+  const openNote = useUi((s) => s.openNote);
   const setLastKind = usePreferences((s) => s.setLastAddKind);
   const { me, partner } = useHousehold();
   const create = useCreateWish();
@@ -107,6 +108,20 @@ export function AddSheet() {
   return (
     <Sheet open={!!draft} onOpenChange={(o) => !o && close()} title="Ajouter">
       <div className="no-scrollbar -mx-6 mb-4 flex gap-2 overflow-x-auto px-6">
+        {/* Pas un type d'ajout : ouvre directement l'écriture d'un mot */}
+        {partner && (
+          <button
+            type="button"
+            onClick={() => {
+              tap(5);
+              close();
+              openNote(title.trim() ? { text: title.trim() } : {});
+            }}
+            className="pressable flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-gradient-noo-soft px-4 text-caption font-semibold text-ink-2 shadow-card"
+          >
+            <span className="text-[16px]">💌</span> Mot
+          </button>
+        )}
         {KINDS.map((k) => (
           <button
             key={k.kind}

@@ -7,6 +7,7 @@ import { useUi } from "@/stores/ui";
 import { usePreferences } from "@/stores/preferences";
 import { InstallBanner } from "@/features/install/InstallBanner";
 import { EventSheet } from "@/features/agenda/EventSheet";
+import { NoteSheet } from "@/features/notes/NoteSheet";
 import { useRealtime } from "@/lib/realtime";
 
 export function AppShell() {
@@ -23,6 +24,7 @@ export function AppShell() {
       <WishSheet />
       <MatchCelebration />
       <EventSheet />
+      <NoteSheet />
     </div>
   );
 }

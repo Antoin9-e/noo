@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 // Pas de WebSocket sur Vercel : on refetch les données partagées régulièrement
 // tant que l'app est visible, et tout de suite au retour au premier plan.
-const SHARED = new Set(["events", "wishes", "activity", "family"]);
+const SHARED = new Set(["events", "wishes", "activity", "notes", "family"]);
 const INTERVAL = 15_000;
 
 export function useRealtime(enabled: boolean) {

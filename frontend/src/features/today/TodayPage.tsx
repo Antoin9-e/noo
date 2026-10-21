@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { addDays, isSameDay, startOfDay } from "date-fns";
-import { ChevronRight, Flame, Moon } from "lucide-react";
+import { ChevronRight, Flame, Mail, Moon, Music2 } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Skeleton } from "@/components/common/Skeleton";
@@ -13,6 +13,8 @@ import { useWishes } from "@/features/wishes/hooks";
 import { openMatches, toSwipe } from "@/features/wishes/selectors";
 import { useActivity } from "@/features/activity/hooks";
 import { ActivityItem } from "@/features/activity/ActivityItem";
+import { useUnreadNotes } from "@/features/notes/hooks";
+import { useUi } from "@/stores/ui";
 import { countdownLabel, firstName, fmt, greeting } from "@/lib/dates";
 import { TONE_SOFT, toneFor, toneOf } from "@/lib/person-color";
 import { cn } from "@/lib/utils";
@@ -59,6 +61,37 @@ function Countdowns({ events }: { events: NooEvent[] }) {
   );
 }
 
+// Le dernier mot de l'autre pas encore lu, mis en avant comme un post-it
+function UnreadNote() {
+  const { partner } = useHousehold();
+  const unread = useUnreadNotes();
+  const note = unread[0];
+  if (!note || !partner) return null;
+  const music = note.musicTitle && `${note.musicTitle}${note.musicArtist ? ` · ${note.musicArtist}` : ""}`;
+  return (
+    <Link to="/mots" className="pressable animate-rise mt-6 flex items-center gap-3 rounded-3xl bg-gradient-noo-soft p-4 shadow-card">
+      <Avatar name={partner.user.name} image={partner.user.image} tone={toneOf(partner.color)} />
+      <span className="min-w-0 flex-1">
+        <span className="block text-caption font-semibold text-ink-3">
+          {note.text ? `Un mot de ${firstName(partner.user.name)}` : `${firstName(partner.user.name)} t'a partagé une musique`}
+          {unread.length > 1 && ` · +${unread.length - 1}`}
+        </span>
+        {note.text && <span className="line-clamp-2 font-semibold">{note.text}</span>}
+        {note.spotifyId && (
+          <span className="flex items-center gap-1 truncate text-caption text-ink-2">
+            <Music2 className="size-3.5 shrink-0" /> {music ?? "Une musique Spotify"}
+          </span>
+        )}
+      </span>
+      {note.musicImage ? (
+        <img src={note.musicImage} alt="" className="size-12 shrink-0 rounded-xl object-cover" />
+      ) : (
+        <ChevronRight className="size-5 text-ink-3" />
+      )}
+    </Link>
+  );
+}
+
 export default function TodayPage() {
   const { me, mine, partner } = useHousehold();
   const today = useMemo(() => startOfDay(new Date()), []);
@@ -66,6 +99,8 @@ export default function TodayPage() {
   const { data: countdowns } = useCountdowns();
   const { data: wishes } = useWishes();
   const { data: activity } = useActivity();
+  const unreadNotes = useUnreadNotes();
+  const openNote = useUi((s) => s.openNote);
 
   const now = new Date();
   const todayEvents = events?.filter((e) => isSameDay(new Date(e.startAt), today) || (e.endAt && new Date(e.endAt) >= today && new Date(e.startAt) < today)) ?? [];
@@ -90,15 +125,27 @@ export default function TodayPage() {
         title={`${greeting()}${me ? ` ${firstName(me.name)}` : ""}`}
         right={
           me && (
-            <Link to="/moi" aria-label="Mon profil" className="pressable">
-              <Avatar name={me.name} image={me.image} tone={toneOf(mine?.color)} />
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/mots" aria-label="Nos mots" className="pressable relative grid size-11 place-items-center rounded-full bg-surface text-ink-2 shadow-card">
+                <Mail className="size-5" />
+                {unreadNotes.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 grid size-5 place-items-center rounded-full bg-gradient-noo text-[11px] font-bold text-white ring-2 ring-bg">
+                    {unreadNotes.length}
+                  </span>
+                )}
+              </Link>
+              <Link to="/moi" aria-label="Mon profil" className="pressable">
+                <Avatar name={me.name} image={me.image} tone={toneOf(mine?.color)} />
+              </Link>
+            </div>
           )
         }
       />
 
       <div className="px-4">
         {countdowns && countdowns.length > 0 && <Countdowns events={countdowns} />}
+
+        <UnreadNote />
 
         {showTonight && (
           <Link
@@ -164,7 +211,14 @@ export default function TodayPage() {
         )}
 
         {partner && (
-          <Section title={`Du côté de ${firstName(partner.user.name)}`}>
+          <Section
+            title={`Du côté de ${firstName(partner.user.name)}`}
+            action={
+              <button type="button" onClick={() => openNote()} className="pressable text-caption font-semibold text-violet">
+                💌 Un mot
+              </button>
+            }
+          >
             {feed.length ? (
               <ul className="space-y-2">
                 {feed.map((a) => <ActivityItem key={a.id} activity={a} />)}

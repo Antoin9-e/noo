@@ -11,6 +11,8 @@ import WishesPage from "@/features/wishes/WishesPage";
 import WishListPage from "@/features/wishes/WishListPage";
 import MatchPage from "@/features/wishes/MatchPage";
 import TonightPage from "@/features/wishes/TonightPage";
+import NotesPage from "@/features/notes/NotesPage";
+import ShareTargetPage from "@/features/notes/ShareTargetPage";
 import MePage from "@/features/me/MePage";
 import OnboardingPage from "@/features/household/OnboardingPage";
 import JoinPage from "@/features/household/JoinPage";
@@ -32,6 +34,8 @@ export function AppRoutes() {
             <Route path="/envies/match" element={<MatchPage />} />
             <Route path="/envies/:slug" element={<WishListPage />} />
             <Route path="/ce-soir" element={<TonightPage />} />
+            <Route path="/mots" element={<NotesPage />} />
+            <Route path="/mots/partager" element={<ShareTargetPage />} />
             <Route path="/moi" element={<MePage />} />
           </Route>
         </Route>

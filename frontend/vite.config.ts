@@ -29,6 +29,12 @@ export default defineConfig({
         orientation: "portrait",
         theme_color: "#fbf7f2",
         background_color: "#fbf7f2",
+        // Android : Noo apparaît dans « Partager » (ex. un morceau depuis Spotify)
+        share_target: {
+          action: "/mots/partager",
+          method: "GET",
+          params: { title: "title", text: "text", url: "url" },
+        },
       },
       injectManifest: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],

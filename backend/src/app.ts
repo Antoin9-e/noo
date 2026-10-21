@@ -6,6 +6,7 @@ import { eventRoutes } from "./modules/events/routes.js";
 import { wishRoutes } from "./modules/wishes/routes.js";
 import { searchRoutes } from "./modules/search/routes.js";
 import { activityRoutes } from "./modules/activity/routes.js";
+import { noteRoutes } from "./modules/notes/routes.js";
 import { pushRoutes } from "./modules/push/routes.js";
 import { cronRoutes } from "./modules/push/cron.js";
 
@@ -20,6 +21,7 @@ export const app = new Elysia()
   .use(wishRoutes)
   .use(searchRoutes)
   .use(activityRoutes)
+  .use(noteRoutes)
   .use(pushRoutes)
   .use(cronRoutes)
   .get("/api/health", () => ({ ok: true }));

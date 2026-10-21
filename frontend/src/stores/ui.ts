@@ -4,6 +4,7 @@ import type { NooEvent, Wish, WishCategory } from "@/types";
 export type EventDraft = Partial<NooEvent> & { forWhom?: "me" | "partner" | "both" };
 export type AddKind = "EVENT" | WishCategory;
 export type AddDraft = { kind: AddKind; title?: string };
+export type NoteDraft = { text?: string; spotifyUrl?: string };
 
 interface UiState {
   // Sheets ouvrables depuis n'importe quel écran
@@ -15,6 +16,11 @@ interface UiState {
   addDraft: AddDraft | null;
   openAdd: (draft: AddDraft) => void;
   closeAdd: () => void;
+
+  // Écrire un mot (ou partager une musique)
+  noteDraft: NoteDraft | null;
+  openNote: (draft?: NoteDraft) => void;
+  closeNote: () => void;
 
   wishId: string | null;
   openWish: (id: string) => void;
@@ -34,6 +40,10 @@ export const useUi = create<UiState>()((set) => ({
   addDraft: null,
   openAdd: (addDraft) => set({ addDraft }),
   closeAdd: () => set({ addDraft: null }),
+
+  noteDraft: null,
+  openNote: (noteDraft = {}) => set({ noteDraft }),
+  closeNote: () => set({ noteDraft: null }),
 
   wishId: null,
   openWish: (wishId) => set({ wishId }),

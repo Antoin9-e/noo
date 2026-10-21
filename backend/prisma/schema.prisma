@@ -55,6 +55,7 @@ model Family {
   events      Event[]
   wishes      Wish[]
   activities  Activity[]
+  notes       Note[]
 }
 
 model Membership {
@@ -198,6 +199,39 @@ model ActivityReaction {
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@id([activityId, userId]) // une réaction par personne (remplaçable)
+}
+
+// « Nos mots » : un petit mot et/ou un morceau Spotify, jusqu'à ce qu'on le supprime
+model Note {
+  id          String    @id @default(uuid())
+  familyId    String
+  authorId    String
+  text        String?
+  // Lien Spotify partagé, avec un instantané pour l'affichage
+  spotifyType String? // "track" | "album" | "playlist" | "episode" | "show" | "artist"
+  spotifyId   String?
+  musicTitle  String?
+  musicArtist String?
+  musicImage  String?
+  notified    Boolean   @default(false) // envoyé en notif (sinon juste posé)
+  readAt      DateTime? // vu par l'autre
+  createdAt   DateTime  @default(now())
+
+  family    Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  reactions NoteReaction[]
+
+  @@index([familyId, createdAt])
+}
+
+model NoteReaction {
+  noteId    String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, userId])
 }
 
 model PushSubscription {
