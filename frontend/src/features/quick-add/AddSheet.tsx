@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronDown, Link2, Plus, Search } from "lucide-react";
+import { ChevronDown, Link2, Mail, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet } from "@/components/common/Sheet";
 import { Skeleton } from "@/components/common/Skeleton";
@@ -119,7 +119,7 @@ export function AddSheet() {
             }}
             className="pressable flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-gradient-noo-soft px-4 text-caption font-semibold text-ink-2 shadow-card"
           >
-            <span className="text-[16px]">💌</span> Mot
+            <Mail className="size-4 text-violet" /> Mot
           </button>
         )}
         {KINDS.map((k) => (

@@ -78,13 +78,13 @@ export const noteRoutes = new Elysia({ prefix: "/api/families/:familyId/notes" }
 
       if (body.notify) {
         const [name, recipients] = await Promise.all([firstNameOf(user.id), otherMembers(params.familyId, user.id)]);
-        const song = music && `🎵 ${music.title ?? "Une musique"}${music.artist ? ` · ${music.artist}` : ""}`;
+        const song = music && `${music.title ?? "Une musique"}${music.artist ? ` · ${music.artist}` : ""}`;
         // Un mot est envoyé exprès : jamais limité, et chacun reste dans le centre de notifs
         notifyLater(
           recipients,
           "note",
           {
-            title: music && !text ? `${name} t'a partagé une musique` : `💌 Un mot de ${name}`,
+            title: music && !text ? `${name} t'a partagé une musique` : `Un mot de ${name}`,
             body: [text, song].filter(Boolean).join("\n"),
             url: "/mots",
             tag: `note-${note.id}`,

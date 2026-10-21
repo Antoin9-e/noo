@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { addDays, isSameDay, startOfDay } from "date-fns";
-import { ChevronRight, Flame, Mail, Moon, Music2 } from "lucide-react";
+import { ChevronRight, Flame, Mail, Moon, Music2, PenLine } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Skeleton } from "@/components/common/Skeleton";
@@ -214,8 +214,8 @@ export default function TodayPage() {
           <Section
             title={`Du côté de ${firstName(partner.user.name)}`}
             action={
-              <button type="button" onClick={() => openNote()} className="pressable text-caption font-semibold text-violet">
-                💌 Un mot
+              <button type="button" onClick={() => openNote()} className="pressable flex h-11 items-center gap-1.5 text-caption font-semibold text-violet">
+                <PenLine className="size-4" /> Un mot
               </button>
             }
           >

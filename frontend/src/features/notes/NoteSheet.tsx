@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClipboardPaste, Music2, X } from "lucide-react";
+import { ClipboardPaste, Music2, Pin, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet } from "@/components/common/Sheet";
 import { Skeleton } from "@/components/common/Skeleton";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { spotifyUrlIn, useSendNote, useSpotifyPreview } from "./hooks";
 import { MusicCard } from "./MusicCard";
 
-const PRESETS = ["Je pense à toi 💜", "Tu me manques 🥺", "Bien rentré·e ?", "Ce soir resto ? 🍽️", "Fier·e de toi ✨", "Bisous 😘"];
+const PRESETS = ["Je pense à toi", "Tu me manques", "Bien rentré·e ?", "Ce soir, resto ?", "Fier·e de toi", "Bisous"];
 
 export function NoteSheet() {
   const draft = useUi((s) => s.noteDraft);
@@ -58,7 +58,7 @@ export function NoteSheet() {
       { onError: (err) => toast.error(err.message) },
     );
     tap(15);
-    toast.success(notify ? `💌 Envoyé à ${name}` : `📌 Mot posé pour ${name}`);
+    toast.success(notify ? `Envoyé à ${name}` : `Mot posé pour ${name}`);
     close();
   };
 
@@ -114,8 +114,8 @@ export function NoteSheet() {
               {link ? <X className="size-5" /> : <ClipboardPaste className="size-5" />}
             </button>
           </div>
-          {!link && <p className="mt-1.5 text-caption text-ink-3">Dans Spotify : ••• → Partager → Copier le lien</p>}
-          {linkInvalid && <p className="mt-1.5 text-caption text-danger">Ce n'est pas un lien Spotify</p>}
+          {!link && <p className="mt-2 px-1 text-caption text-ink-3">Dans Spotify : Partager, puis Copier le lien</p>}
+          {linkInvalid && <p className="mt-2 px-1 text-caption text-danger">Ce n'est pas un lien Spotify</p>}
           {spotifyUrl && preview.isLoading && <Skeleton className="mt-3 h-[72px]" />}
           {preview.data && !linkInvalid && (
             <MusicCard
@@ -133,7 +133,7 @@ export function NoteSheet() {
           checked={notify}
           onChange={setNotify}
           label="Envoyer en notification"
-          hint={notify ? `${name} reçoit une notif tout de suite` : `Posé sur son écran Aujourd'hui, sans notif`}
+          hint={notify ? `${name} reçoit une notification tout de suite` : `Il l'attendra sur son écran Aujourd'hui`}
         />
 
         <Button
@@ -143,7 +143,15 @@ export function NoteSheet() {
           className="w-full"
           disabled={(!text.trim() && !spotifyUrl) || linkInvalid || (!!spotifyUrl && preview.isLoading)}
         >
-          {notify ? "Envoyer 💌" : "Poser le mot 📌"}
+          {notify ? (
+            <>
+              <Send /> Envoyer
+            </>
+          ) : (
+            <>
+              <Pin /> Poser le mot
+            </>
+          )}
         </Button>
       </form>
     </Sheet>

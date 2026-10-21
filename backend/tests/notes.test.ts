@@ -75,7 +75,7 @@ describe("Nos mots", () => {
     if (!pushEnabled) return;
     // Jamais limité : deux mots, deux notifs
     expect(send).toHaveBeenCalledTimes(2);
-    expect(JSON.parse(String(send.mock.calls[0]![1]))).toMatchObject({ title: "💌 Un mot de Toi", body: "Tu me manques", url: "/mots" });
+    expect(JSON.parse(String(send.mock.calls[0]![1]))).toMatchObject({ title: "Un mot de Toi", body: "Tu me manques", url: "/mots" });
   });
 
   it("marque lus les mots de l'autre, pas les siens", async () => {
